@@ -145,7 +145,7 @@ function draw_noise_roll(emu, state_table, base_color)
   for x = 1, #state_table do
     if state_table[x].enabled and state_table[x].y then
       local volume = state_table[x].volume
-      local y = state_table[x].y - 2
+      local y = state_table[x].y
       local foreground = base_color
       --local background = apply_brightness(base_color, 0.2)
       --emu.drawLine(x, y-2, x, y+2, background)
@@ -188,6 +188,17 @@ function draw_piano_strings()
     local string_color = string_colors[i%12 + 1]
     local y = i*PIANO_ROLL_KEY_HEIGHT
     emu.drawLine(0, y, PIANO_ROLL_WIDTH, y, string_color)
+  end
+end
+
+function draw_noise_strings()
+  local noise_string_colors = {
+    0x060606,
+    0x0A0A0A
+  }
+  for i = 0, 15 do
+    local y = i * NOISE_KEY_HEIGHT
+    emu.drawLine(0, NOISE_ROLL_OFFSET + y, PIANO_ROLL_WIDTH, NOISE_ROLL_OFFSET + y, noise_string_colors[(i%2)+1])
   end
 end
 
@@ -310,6 +321,7 @@ function mesen_draw()
   draw_piano_background()
   draw_piano_strings()
   draw_piano_keys()
+  draw_noise_strings()
   
   update_piano_roll(apu.square1, square1_roll)
   update_piano_roll(apu.square2, square2_roll)
