@@ -16,6 +16,149 @@ local DMC_COLOR = 0x8040FF
 local DMC_OFFSET = 178
 local DMC_HEIGHT = 19
 
+function tiny_a(x, y, color)
+  emu.drawLine(x,y+1,x, y+4, color)
+  emu.drawLine(x+2,y+1,x+2, y+4, color)
+  emu.drawPixel(x+1,y,color)
+  emu.drawPixel(x+1,y+2,color)
+end
+
+function tiny_b(x, y, color)
+  emu.drawLine(x, y, x, y+4, color)
+  emu.drawPixel(x+1, y, color)
+  emu.drawPixel(x+1, y+2, color)
+  emu.drawPixel(x+1, y+4, color)
+  emu.drawPixel(x+2, y+1, color)
+  emu.drawPixel(x+2, y+3, color)
+end
+
+function tiny_c(x, y, color)
+  emu.drawLine(x, y+1, x, y+3, color)
+  emu.drawLine(x+1, y, x+2, y, color)
+  emu.drawLine(x+1, y+4, x+2, y+4, color)
+end
+
+function tiny_d(x, y, color)
+  emu.drawLine(x, y, x, y+4, color)
+  emu.drawPixel(x+1, y, color)
+  emu.drawPixel(x+1, y+4, color)
+  emu.drawLine(x+2, y+1, x+2, y+3,color)
+end
+
+function tiny_e(x, y, color)
+  emu.drawLine(x, y, x, y+4, color)
+  emu.drawLine(x+1, y, x+2, y, color)
+  emu.drawPixel(x+1, y+2, color)
+  emu.drawLine(x+1, y+4, x+2, y+4, color)
+end
+
+function tiny_f(x, y, color)
+  emu.drawLine(x, y, x, y+4, color)
+  emu.drawLine(x+1, y, x+2, y, color)
+  emu.drawPixel(x+1, y+2, color)
+end
+
+function tiny_0(x, y, color)
+  emu.drawLine(x, y, x, y+4, color)
+  emu.drawLine(x+2, y, x+2, y+4, color)
+  emu.drawPixel(x+1, y, color)
+  emu.drawPixel(x+1, y+4, color)
+end
+
+function tiny_1(x, y, color)
+  emu.drawLine(x+1, y, x+1, y+4, color)
+  emu.drawLine(x, y+4, x+2, y+4, color)
+  emu.drawPixel(x, y+1,color)
+end
+
+function tiny_2(x, y, color)
+  emu.drawLine(x, y, x+1, y, color)
+  emu.drawLine(x+2,y+1,x,y+3, color)
+  emu.drawLine(x,y+4,x+2,y+4, color)
+end
+
+function tiny_3(x, y, color)
+  emu.drawLine(x+2, y, x+2, y+4, color)
+  emu.drawLine(x, y, x+1, y, color)
+  emu.drawPixel(x+1, y+2, color)
+  emu.drawLine(x, y+4, x+1, y+4, color)
+end
+
+function tiny_4(x, y, color)
+  emu.drawLine(x+2, y, x+2, y+4, color)
+  emu.drawLine(x, y, x, y+2, color)
+  emu.drawPixel(x+1, y+2, color)
+end
+
+function tiny_5(x, y, color)
+  emu.drawLine(x, y, x+2, y, color)
+  emu.drawLine(x, y+1, x, y+2, color)
+  emu.drawPixel(x+1, y+2, color)
+  emu.drawPixel(x+2, y+3, color)
+  emu.drawLine(x,y+4,x+1,y+4, color)
+end
+
+function tiny_6(x, y, color)
+  emu.drawLine(x, y, x, y+4, color)
+  emu.drawLine(x+1, y, x+2, y, color)
+  emu.drawLine(x+1, y+2, x+2, y+2, color)
+  emu.drawLine(x+1, y+4, x+2, y+4, color)
+  emu.drawPixel(x+2, y+3, color)
+end
+
+function tiny_7(x, y, color)
+  emu.drawLine(x+2, y, x+2, y+4, color)
+  emu.drawLine(x, y, x+1, y, color)
+end
+
+function tiny_8(x, y, color)
+  emu.drawLine(x, y, x, y+4, color)
+  emu.drawLine(x+2, y, x+2, y+4, color)
+  emu.drawPixel(x+1, y, color)
+  emu.drawPixel(x+1, y+2, color)
+  emu.drawPixel(x+1, y+4, color)
+end
+
+function tiny_9(x, y, color)
+  emu.drawLine(x+2, y, x+2, y+4, color)
+  emu.drawLine(x, y, x+1, y, color)
+  emu.drawLine(x, y+2, x+1, y+2, color)
+  emu.drawLine(x, y+4, x+1, y+4, color)
+  emu.drawPixel(x, y+1, color)
+end
+
+function tiny_hex_char(x, y, value, color)
+  local hex_functions = {
+    tiny_0,
+    tiny_1,
+    tiny_2,
+    tiny_3,
+    tiny_4,
+    tiny_5,
+    tiny_6,
+    tiny_7,
+    tiny_8,
+    tiny_9,
+    tiny_a,
+    tiny_b,
+    tiny_c,
+    tiny_d,
+    tiny_e,
+    tiny_f
+  }
+  if hex_functions[value+1] then
+    hex_functions[value+1](x,y,color)
+  end
+end
+
+function tiny_hex(x, y, value, color, width)
+  while width > 0 do
+    tiny_hex_char(x + width * 4, y, value & 0xF, color)
+    value = value >> 4
+    width = width - 1
+  end
+end
+
 function frequency_to_coordinate(note_frequency, lowest_freq, highest_freq, viewport_height)
   local highest_log = math.log(highest_freq)
   local lowest_log = math.log(lowest_freq)
@@ -113,6 +256,7 @@ function update_noise_roll(channel, state_table)
   local channel_state = {}
   if noise_period_table[channel.period + 1] then
     channel_state.y = noise_period_table[channel.period + 1] * NOISE_KEY_HEIGHT
+    channel_state.period = noise_period_table[channel.period + 1]
   end
   channel_state.volume = channel.envelope.volume
   channel_state.enabled = channel.envelope.volume ~= 0 and channel.lengthCounter.counter > 0
@@ -203,12 +347,12 @@ function draw_noise_roll(emu, state_table, base_color)
 end
 
 function draw_piano_background()
-   emu.drawRectangle(0, 0, 256, 240, 0x000000, true)
+   emu.drawRectangle(0, 0, 256, 240, 0x80000000, true)
 end
 
 function draw_piano_strings()
-  local black_string = 0x101010
-  local white_string = 0x060606
+  local black_string = 0x80101010
+  local white_string = 0x80060606
   local string_colors = {
     white_string, --C
     white_string, --B
@@ -233,8 +377,8 @@ end
 
 function draw_noise_strings()
   local noise_string_colors = {
-    0x060606,
-    0x0A0A0A
+    0x80060606,
+    0x800A0A0A
   }
   for i = 0, 15 do
     local y = i * NOISE_KEY_HEIGHT
@@ -350,50 +494,45 @@ function draw_key_spot(note, base_color)
   key_drawing_functions[adjacent_key % 12 + 1](adjacent_y, adjacent_key_color)
 end
 
-function draw_even_pad(y, color)
-  emu.drawLine(243, y - 1, 246, y - 1, color)
-  emu.drawLine(241, y, 246, y, color)
-  emu.drawLine(243, y + 1, 246, y + 1, color)
+function draw_pad(x, y, value, foreground, background)
+  emu.drawRectangle(x, y-1, 4, 9, background, true)
+  emu.drawLine(x+4, y, x+4, y+6, background)
+  tiny_hex_char(x+1,y+1,value,foreground)
 end
 
-function draw_odd_pad(y, color)
-  emu.drawLine(248, y - 1, 251, y - 1, color)
-  emu.drawLine(241, y, 251, y, color)
-  emu.drawLine(248, y + 1, 251, y + 1, color)
-end
-
-function draw_noise_spot(note, base_color)
-  if (note.y == nil or note.enabled == false) then
-    return
-  end
-
-  local pad_drawing_functions = {
-    draw_even_pad,
-    draw_odd_pad
-  }
-  local noise_pad = math.floor(note.y / NOISE_KEY_HEIGHT)
-  local y = (noise_pad * NOISE_KEY_HEIGHT) + NOISE_ROLL_OFFSET
-  pad_drawing_functions[(noise_pad % 2) + 1](y, base_color)
-end
-
-function draw_noise_pads()
-  local pad_drawing_functions = {
-    draw_even_pad,
-    draw_odd_pad
-  }
-
+function draw_noise_pads(active_note)
   local pad_colors = {
-    0x303030,
+    0x101010,
+    0x121212,
+    0x141414,
+    0x161616,
+    0x181818,
+    0x1A1A1A,
+    0x1C1C1C,
+    0x1E1E1E,
     0x202020,
+    0x222222,
+    0x242424,
+    0x262626,
+    0x282828,
+    0x2A2A2A,
+    0x2C2C2C,
+    0x2E2E2E,
   }
 
   for i = 0, 15 do
-    local y = i * 2 + NOISE_ROLL_OFFSET
-    local color = pad_colors[(i % 2) + 1]
-    pad_drawing_functions[(i % 2) + 1](y, color)
+    local x = 240 + ((i % 4) * 4) 
+    local y = i * 2 + NOISE_ROLL_OFFSET - 3
+    local color = pad_colors[(0xF - i) + 1]
+    local hex_value = 0xF - i;
+    if (active_note.y and active_note.enabled and active_note.period == hex_value) then
+      color = NOISE_COLOR
+    end
+    draw_pad(x, y, hex_value, apply_brightness(color, 1.8), color)
   end
 
-  emu.drawLine(240, NOISE_ROLL_OFFSET, 240, NOISE_ROLL_OFFSET + 30, 0x101010)
+  emu.drawLine(240, NOISE_ROLL_OFFSET - 4, 240, NOISE_ROLL_OFFSET + 30, 0x101010)
+  emu.drawLine(241, NOISE_ROLL_OFFSET + 30, 243, NOISE_ROLL_OFFSET + 30, 0x303030)
 end
 
 function draw_dmc_roll(emu, state_table, base_color)
@@ -432,18 +571,18 @@ function mesen_draw()
   --emu.drawString(10, 10, "Hello Mesen",   0x80ff0000, 0x80FFFFFF)
   --emu.drawString(10, 20, "P1: "..apu.square1.period,   0xff0000, 0xFFFFFF)
 
-  draw_piano_background()
-  draw_piano_strings()
-  draw_piano_keys()
-  draw_noise_strings()
-  draw_noise_pads()
-
-  
   update_piano_roll(apu.square1, square1_roll)
   update_piano_roll(apu.square2, square2_roll)
   update_piano_roll(apu.triangle, triangle_roll)
   update_noise_roll(apu.noise, noise_roll)
   update_dmc_roll(apu.dmc, dmc_roll)
+
+  draw_piano_background()
+  draw_piano_strings()
+  draw_piano_keys()
+  draw_noise_strings()
+  draw_noise_pads(noise_roll[#noise_roll])
+  
   draw_piano_roll(emu, square1_roll, SQUARE1_COLOR) 
   draw_piano_roll(emu, square2_roll, SQUARE2_COLOR) 
   draw_piano_roll(emu, triangle_roll, TRIANGLE_COLOR)
@@ -452,7 +591,6 @@ function mesen_draw()
   draw_key_spot(square1_roll[#square1_roll], SQUARE1_COLOR)
   draw_key_spot(square2_roll[#square2_roll], SQUARE2_COLOR)
   draw_key_spot(triangle_roll[#square1_roll], TRIANGLE_COLOR)
-  draw_noise_spot(noise_roll[#noise_roll], NOISE_COLOR)
   draw_dmc_head(dmc_roll[#dmc_roll], DMC_COLOR)
 end
 
