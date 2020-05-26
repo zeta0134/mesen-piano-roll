@@ -13,6 +13,8 @@ local SQUARE2_COLOR = 0xFFC040
 local TRIANGLE_COLOR = 0x40FF40
 local NOISE_COLOR = 0x4040FF
 local DMC_COLOR = 0x8040FF
+local DMC_OFFSET = 178
+local DMC_HEIGHT = 19
 
 function frequency_to_coordinate(note_frequency, lowest_freq, highest_freq, viewport_height)
   local highest_log = math.log(highest_freq)
@@ -118,6 +120,21 @@ function update_noise_roll(channel, state_table)
   if #state_table > PIANO_ROLL_WIDTH then
     table.remove(state_table, 1)
   end
+end
+
+local old_dmc_level = 0
+
+function update_dmc_roll(channel, state_table)
+  local channel_state = {}
+  local dmc_playing = channel.bytesRemaining > 0
+  local delta = math.abs(channel.outputVolume - old_dmc_level)
+  channel_state.playing = dmc_playing
+  channel_state.delta = delta
+  table.insert(state_table, channel_state)
+  if #state_table > PIANO_ROLL_WIDTH then
+    table.remove(state_table, 1)
+  end
+  old_dmc_level = channel.outputVolume
 end
 
 function draw_piano_roll(emu, state_table, base_color)  
@@ -356,6 +373,19 @@ function draw_noise_pads()
   emu.drawLine(240, NOISE_ROLL_OFFSET, 240, NOISE_ROLL_OFFSET + 30, 0x101010)
 end
 
+function draw_dmc_roll(emu, state_table, base_color)
+  for x = 1, #state_table do
+    local y = DMC_OFFSET
+    local color = base_color
+    if not state_table[x].playing then
+      color = apply_brightness(base_color, 0.5)
+    end
+    -- width of "sample" based on delta, maximum is 127
+    local sample_offset = math.floor((state_table[x].delta / 127) * DMC_HEIGHT)
+    emu.drawLine(x - 1, y - sample_offset, x - 1, y + sample_offset, color)
+  end
+end
+
 function mesen_draw()
   local state = emu.getState()
   local apu = state.apu
@@ -369,15 +399,18 @@ function mesen_draw()
   draw_piano_keys()
   draw_noise_strings()
   draw_noise_pads()
+
   
   update_piano_roll(apu.square1, square1_roll)
   update_piano_roll(apu.square2, square2_roll)
   update_piano_roll(apu.triangle, triangle_roll)
   update_noise_roll(apu.noise, noise_roll)
+  update_dmc_roll(apu.dmc, dmc_roll)
   draw_piano_roll(emu, square1_roll, SQUARE1_COLOR) 
   draw_piano_roll(emu, square2_roll, SQUARE2_COLOR) 
   draw_piano_roll(emu, triangle_roll, TRIANGLE_COLOR)
   draw_noise_roll(emu, noise_roll, NOISE_COLOR)
+  draw_dmc_roll(emu, dmc_roll, DMC_COLOR)
   draw_key_spot(square1_roll[#square1_roll], SQUARE1_COLOR)
   draw_key_spot(square2_roll[#square2_roll], SQUARE2_COLOR)
   draw_key_spot(triangle_roll[#square1_roll], TRIANGLE_COLOR)
