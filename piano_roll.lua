@@ -15,6 +15,40 @@ local NOISE_COLOR = 0x4040FF
 local DMC_COLOR = 0x8040FF
 local DMC_OFFSET = 178
 local DMC_HEIGHT = 19
+local BACKGROUND_COLOR = 0x80000000
+local PIANO_STRING_BLACK_COLOR = 0x80101010
+local PIANO_STRING_WHITE_COLOR = 0x80060606
+local NOISE_STRING_BLACK_COLOR = 0x80060606
+local NOISE_STRING_WHITE_COLOR = 0x800A0A0A
+
+local settings = {
+  background="transparent"
+}
+
+function toggle_background()
+  if settings.background == "clear" then
+    settings.background = "transparent"
+    BACKGROUND_COLOR = 0xFF000000
+    PIANO_STRING_BLACK_COLOR = 0xFF000000
+    PIANO_STRING_WHITE_COLOR = 0xFF000000
+    NOISE_STRING_BLACK_COLOR = 0xFF060606
+    NOISE_STRING_WHITE_COLOR = 0xFF0A0A0A
+  elseif settings.background == "transparent" then
+    settings.background = "solid"
+    BACKGROUND_COLOR = 0x80000000
+    PIANO_STRING_BLACK_COLOR = 0x80101010
+    PIANO_STRING_WHITE_COLOR = 0x80060606
+    NOISE_STRING_BLACK_COLOR = 0x80060606
+    NOISE_STRING_WHITE_COLOR = 0x800A0A0A
+  elseif settings.background == "solid" then
+    settings.background = "clear"
+    BACKGROUND_COLOR = 0x000000
+    PIANO_STRING_BLACK_COLOR = 0x101010
+    PIANO_STRING_WHITE_COLOR = 0x060606
+    NOISE_STRING_BLACK_COLOR = 0x060606
+    NOISE_STRING_WHITE_COLOR = 0x0A0A0A
+  end
+end
 
 function tiny_a(x, y, color)
   emu.drawLine(x,y+1,x, y+4, color)
@@ -347,12 +381,12 @@ function draw_noise_roll(emu, state_table, base_color)
 end
 
 function draw_piano_background()
-   emu.drawRectangle(0, 0, 256, 240, 0x80000000, true)
+   emu.drawRectangle(0, 0, 256, 240, BACKGROUND_COLOR, true)
 end
 
 function draw_piano_strings()
-  local black_string = 0x80101010
-  local white_string = 0x80060606
+  local black_string = PIANO_STRING_BLACK_COLOR
+  local white_string = PIANO_STRING_WHITE_COLOR
   local string_colors = {
     white_string, --C
     white_string, --B
@@ -377,8 +411,8 @@ end
 
 function draw_noise_strings()
   local noise_string_colors = {
-    0x80060606,
-    0x800A0A0A
+    NOISE_STRING_BLACK_COLOR,
+    NOISE_STRING_WHITE_COLOR
   }
   for i = 0, 15 do
     local y = i * NOISE_KEY_HEIGHT
@@ -564,6 +598,25 @@ function draw_dmc_head(note, base_color)
   tiny_hex(241, DMC_OFFSET - 2, note.address, foreground, 4)
 end
 
+local old_mouse_state = {}
+
+function is_region_clicked(x ,y, width, height, mouse_state)
+  if mouse_state.left and not old_mouse_state.left then
+    if mouse_state.x >= x and mouse_state.x < x + width and mouse_state.y >= y and mouse_state.y < y + height then
+      return true
+    end
+  end
+  return false
+end
+
+function handle_input()
+  local mouse_state = emu.getMouseState()
+  if is_region_clicked(0, 0, 256, 240, mouse_state) then
+    toggle_background()
+  end
+  old_mouse_state = mouse_state
+end
+
 function mesen_draw()
   local state = emu.getState()
   local apu = state.apu
@@ -593,6 +646,8 @@ function mesen_draw()
   draw_key_spot(square2_roll[#square2_roll], SQUARE2_COLOR)
   draw_key_spot(triangle_roll[#square1_roll], TRIANGLE_COLOR)
   draw_dmc_head(dmc_roll[#dmc_roll], DMC_COLOR)
+
+  handle_input()
 end
 
 emu.addEventCallback(mesen_draw, emu.eventType.endFrame);
