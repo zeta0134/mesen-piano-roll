@@ -5,10 +5,13 @@ local PIANO_ROLL_WIDTH = 240
 local PIANO_ROLL_KEYS = 76
 local PIANO_ROLL_KEY_HEIGHT = 2
 local PIANO_ROLL_HEIGHT = PIANO_ROLL_KEYS * PIANO_ROLL_KEY_HEIGHT
+local NOISE_KEY_HEIGHT = 2
+local NOISE_ROLL_HEIGHT = NOISE_KEY_HEIGHT * 16
+local NOISE_ROLL_OFFSET = 200
 local SQUARE1_COLOR = 0xFF4040
 local SQUARE2_COLOR = 0xFFC040
 local TRIANGLE_COLOR = 0x40FF40
-local NOISE_COLOR = 0xFFFF40
+local NOISE_COLOR = 0x4040FF
 local DMC_COLOR = 0x8040FF
 
 function frequency_to_coordinate(note_frequency, lowest_freq, highest_freq, viewport_height)
@@ -86,26 +89,31 @@ function update_piano_roll(channel, state_table)
   end
 end
 
+local noise_period_table = {}
+noise_period_table[4]    =  0 
+noise_period_table[8]    =  1
+noise_period_table[16]   =  2
+noise_period_table[32]   =  3
+noise_period_table[64]   =  4
+noise_period_table[96]   =  5
+noise_period_table[128]  =  6
+noise_period_table[160]  =  7
+noise_period_table[202]  =  8
+noise_period_table[254]  =  9
+noise_period_table[380]  =  10
+noise_period_table[508]  =  11
+noise_period_table[762]  =  12
+noise_period_table[1016] =  13
+noise_period_table[2034] =  14
+noise_period_table[4068] =  15
+
 function update_noise_roll(channel, state_table)
   local channel_state = {}
-  if channel.envelope then
-    -- pulse channels
-    local frequency = pulse_frequency(channel.period)
-    local coordinate = frequency_to_coordinate(frequency, LOWEST_NOTE_FREQ, HIGHEST_NOTE_FREQ, PIANO_ROLL_HEIGHT)
-    channel_state.y = PIANO_ROLL_HEIGHT - coordinate
-    channel_state.volume = channel.envelope.volume
-    channel_state.enabled = channel.envelope.volume ~= 0 and channel.lengthCounter.counter > 0
-  else
-    -- triangle channels
-    local frequency = triangle_frequency(channel.period)
-    local coordinate = frequency_to_coordinate(frequency, LOWEST_NOTE_FREQ, HIGHEST_NOTE_FREQ, PIANO_ROLL_HEIGHT)
-    channel_state.volume = 6
-    channel_state.enabled = 
-      channel.lengthCounter.counter > 0 and
-      channel.period > 2 and
-      channel.enabled
+  if noise_period_table[channel.period + 1] then
+    channel_state.y = noise_period_table[channel.period + 1] * NOISE_KEY_HEIGHT
   end
-  
+  channel_state.volume = channel.envelope.volume
+  channel_state.enabled = channel.envelope.volume ~= 0 and channel.lengthCounter.counter > 0
   table.insert(state_table, channel_state)
   if #state_table > PIANO_ROLL_WIDTH then
     table.remove(state_table, 1)
@@ -129,6 +137,27 @@ function draw_piano_roll(emu, state_table, base_color)
       emu.drawLine(x - 1, y-1, x - 1, y+1, apply_transparency(base_color, innermost_brightness))
       -- center line, always drawn at full brightness when playing
       emu.drawPixel(x - 1, y, foreground)
+    end
+  end
+end
+
+function draw_noise_roll(emu, state_table, base_color)  
+  for x = 1, #state_table do
+    if state_table[x].enabled and state_table[x].y then
+      local volume = state_table[x].volume
+      local y = state_table[x].y - 2
+      local foreground = base_color
+      --local background = apply_brightness(base_color, 0.2)
+      --emu.drawLine(x, y-2, x, y+2, background)
+      -- outer lines, drawn at brightness dependant on volume
+      local outermost_volume = math.max(0, volume - 8) / 8
+      local outermost_brightness = math.min(1.0, outermost_volume)
+      emu.drawLine(x - 1, NOISE_ROLL_OFFSET + y-2, x - 1, NOISE_ROLL_OFFSET + y+2, apply_transparency(base_color, outermost_brightness))
+      local innermost_volume = volume / 8
+      local innermost_brightness = math.min(1.0, innermost_volume)
+      emu.drawLine(x - 1, NOISE_ROLL_OFFSET + y-1, x - 1, NOISE_ROLL_OFFSET + y+1, apply_transparency(base_color, innermost_brightness))
+      -- center line, always drawn at full brightness when playing
+      emu.drawPixel(x - 1, NOISE_ROLL_OFFSET + y, foreground)
     end
   end
 end
@@ -285,9 +314,11 @@ function mesen_draw()
   update_piano_roll(apu.square1, square1_roll)
   update_piano_roll(apu.square2, square2_roll)
   update_piano_roll(apu.triangle, triangle_roll)
+  update_noise_roll(apu.noise, noise_roll)
   draw_piano_roll(emu, square1_roll, SQUARE1_COLOR) 
   draw_piano_roll(emu, square2_roll, SQUARE2_COLOR) 
   draw_piano_roll(emu, triangle_roll, TRIANGLE_COLOR)
+  draw_noise_roll(emu, noise_roll, NOISE_COLOR)
   draw_key_spot(square1_roll[#square1_roll], SQUARE1_COLOR)
   draw_key_spot(square2_roll[#square2_roll], SQUARE2_COLOR)
   draw_key_spot(triangle_roll[#square1_roll], TRIANGLE_COLOR)
