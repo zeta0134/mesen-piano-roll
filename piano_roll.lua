@@ -310,6 +310,52 @@ function draw_key_spot(note, base_color)
   key_drawing_functions[adjacent_key % 12 + 1](adjacent_y, adjacent_key_color)
 end
 
+function draw_even_pad(y, color)
+  emu.drawLine(243, y - 1, 246, y - 1, color)
+  emu.drawLine(241, y, 246, y, color)
+  emu.drawLine(243, y + 1, 246, y + 1, color)
+end
+
+function draw_odd_pad(y, color)
+  emu.drawLine(248, y - 1, 251, y - 1, color)
+  emu.drawLine(241, y, 251, y, color)
+  emu.drawLine(248, y + 1, 251, y + 1, color)
+end
+
+function draw_noise_spot(note, base_color)
+  if (note.y == nil or note.enabled == false) then
+    return
+  end
+
+  local pad_drawing_functions = {
+    draw_even_pad,
+    draw_odd_pad
+  }
+  local noise_pad = math.floor(note.y / NOISE_KEY_HEIGHT)
+  local y = (noise_pad * NOISE_KEY_HEIGHT) + NOISE_ROLL_OFFSET
+  pad_drawing_functions[(noise_pad % 2) + 1](y, base_color)
+end
+
+function draw_noise_pads()
+  local pad_drawing_functions = {
+    draw_even_pad,
+    draw_odd_pad
+  }
+
+  local pad_colors = {
+    0x303030,
+    0x202020,
+  }
+
+  for i = 0, 15 do
+    local y = i * 2 + NOISE_ROLL_OFFSET
+    local color = pad_colors[(i % 2) + 1]
+    pad_drawing_functions[(i % 2) + 1](y, color)
+  end
+
+  emu.drawLine(240, NOISE_ROLL_OFFSET, 240, NOISE_ROLL_OFFSET + 30, 0x101010)
+end
+
 function mesen_draw()
   local state = emu.getState()
   local apu = state.apu
@@ -322,6 +368,7 @@ function mesen_draw()
   draw_piano_strings()
   draw_piano_keys()
   draw_noise_strings()
+  draw_noise_pads()
   
   update_piano_roll(apu.square1, square1_roll)
   update_piano_roll(apu.square2, square2_roll)
@@ -334,6 +381,7 @@ function mesen_draw()
   draw_key_spot(square1_roll[#square1_roll], SQUARE1_COLOR)
   draw_key_spot(square2_roll[#square2_roll], SQUARE2_COLOR)
   draw_key_spot(triangle_roll[#square1_roll], TRIANGLE_COLOR)
+  draw_noise_spot(noise_roll[#noise_roll], NOISE_COLOR)
 end
 
 emu.addEventCallback(mesen_draw, emu.eventType.endFrame);
