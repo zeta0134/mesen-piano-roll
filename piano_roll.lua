@@ -566,7 +566,7 @@ function draw_noise_pads(active_note)
   end
 
   emu.drawLine(240, NOISE_ROLL_OFFSET - 4, 240, NOISE_ROLL_OFFSET + 30, 0x101010)
-  emu.drawLine(241, NOISE_ROLL_OFFSET + 30, 243, NOISE_ROLL_OFFSET + 30, 0x303030)
+  emu.drawLine(241, NOISE_ROLL_OFFSET + 30, 243, NOISE_ROLL_OFFSET + 30, NOISE_STRING_BLACK_COLOR)
 end
 
 function draw_dmc_roll(emu, state_table, base_color)
