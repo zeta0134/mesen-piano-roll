@@ -153,9 +153,9 @@ end
 
 function tiny_hex(x, y, value, color, width)
   while width > 0 do
+    width = width - 1
     tiny_hex_char(x + width * 4, y, value & 0xF, color)
     value = value >> 4
-    width = width - 1
   end
 end
 
@@ -555,12 +555,13 @@ function draw_dmc_head(note, base_color)
     foreground = base_color
     background = apply_brightness(base_color, 0.5)
   end
-  emu.drawRectangle(242, DMC_OFFSET - 13, 13, 27, background, true)
-  emu.drawRectangle(241, DMC_OFFSET - 12, 15, 25, background, true)
-  emu.drawLine(240, DMC_OFFSET - 1, 240, DMC_OFFSET + 1, 0x101010)
-  emu.drawString(243, DMC_OFFSET - 11, string.format("%02X", (note.address & 0xFF00) >> 8), foreground, background)
-  emu.drawString(243, DMC_OFFSET - 3, string.format("%02X", note.address & 0xFF), foreground, background)
-  emu.drawString(246, DMC_OFFSET + 5, string.format("%01X", note.rate), foreground, background)
+  emu.drawRectangle(242, DMC_OFFSET - 6, 13, 13, background, true)
+  emu.drawRectangle(241, DMC_OFFSET - 5, 15, 11, background, true)
+  emu.drawLine(240, DMC_OFFSET - 3, 240, DMC_OFFSET + 3, 0x101010)
+  --emu.drawString(243, DMC_OFFSET - 11, string.format("%02X", (note.address & 0xFF00) >> 8), foreground, background)
+  --emu.drawString(243, DMC_OFFSET - 3, string.format("%02X", note.address & 0xFF), foreground, background)
+  --emu.drawString(246, DMC_OFFSET + 5, string.format("%01X", note.rate), foreground, background)
+  tiny_hex(241, DMC_OFFSET - 2, note.address, foreground, 4)
 end
 
 function mesen_draw()
