@@ -124,12 +124,35 @@ end
 
 local old_dmc_level = 0
 
+local dmc_period_table = {}
+dmc_period_table[428] = 0
+dmc_period_table[380] = 1
+dmc_period_table[340] = 2
+dmc_period_table[320] = 3
+dmc_period_table[286] = 4
+dmc_period_table[254] = 5
+dmc_period_table[226] = 6
+dmc_period_table[214] = 7
+dmc_period_table[190] = 8
+dmc_period_table[160] = 9
+dmc_period_table[142] = 10
+dmc_period_table[128] = 11
+dmc_period_table[106] = 12
+dmc_period_table[84]  = 13
+dmc_period_table[72]  = 14
+dmc_period_table[54]  = 15
+
 function update_dmc_roll(channel, state_table)
   local channel_state = {}
   local dmc_playing = channel.bytesRemaining > 0
   local delta = math.abs(channel.outputVolume - old_dmc_level)
   channel_state.playing = dmc_playing
   channel_state.delta = delta
+  channel_state.address = channel.sampleAddr
+  
+  if dmc_period_table[channel.period + 1] then
+    channel_state.rate = dmc_period_table[channel.period + 1]
+  end
   table.insert(state_table, channel_state)
   if #state_table > PIANO_ROLL_WIDTH then
     table.remove(state_table, 1)
@@ -386,6 +409,21 @@ function draw_dmc_roll(emu, state_table, base_color)
   end
 end
 
+function draw_dmc_head(note, base_color)
+  local foreground = 0x404040
+  local background = 0x202020
+  if note.playing then
+    foreground = base_color
+    background = apply_brightness(base_color, 0.5)
+  end
+  emu.drawRectangle(242, DMC_OFFSET - 13, 13, 27, background, true)
+  emu.drawRectangle(241, DMC_OFFSET - 12, 15, 25, background, true)
+  emu.drawLine(240, DMC_OFFSET - 1, 240, DMC_OFFSET + 1, 0x101010)
+  emu.drawString(243, DMC_OFFSET - 11, string.format("%02X", (note.address & 0xFF00) >> 8), foreground, background)
+  emu.drawString(243, DMC_OFFSET - 3, string.format("%02X", note.address & 0xFF), foreground, background)
+  emu.drawString(246, DMC_OFFSET + 5, string.format("%01X", note.rate), foreground, background)
+end
+
 function mesen_draw()
   local state = emu.getState()
   local apu = state.apu
@@ -415,6 +453,7 @@ function mesen_draw()
   draw_key_spot(square2_roll[#square2_roll], SQUARE2_COLOR)
   draw_key_spot(triangle_roll[#square1_roll], TRIANGLE_COLOR)
   draw_noise_spot(noise_roll[#noise_roll], NOISE_COLOR)
+  draw_dmc_head(dmc_roll[#dmc_roll], DMC_COLOR)
 end
 
 emu.addEventCallback(mesen_draw, emu.eventType.endFrame);
