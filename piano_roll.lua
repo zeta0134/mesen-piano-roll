@@ -525,7 +525,7 @@ function draw_noise_pads(active_note)
     local y = i * 2 + NOISE_ROLL_OFFSET - 3
     local color = pad_colors[(0xF - i) + 1]
     local hex_value = 0xF - i;
-    if (active_note.y and active_note.enabled and active_note.period == hex_value) then
+    if (active_note.y and active_note.enabled and active_note.period == i) then
       color = NOISE_COLOR
     end
     draw_pad(x, y, hex_value, apply_brightness(color, 1.8), color)
