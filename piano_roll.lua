@@ -586,19 +586,16 @@ function draw_dmc_roll(emu, state_table)
   end
 end
 
-function draw_dmc_head(note, base_color)
+function draw_dmc_head(note)
   local foreground = 0x404040
   local background = 0x202020
   if note.playing then
-    foreground = base_color
-    background = apply_brightness(base_color, 0.5)
+    foreground = DMC_PLAYING_COLOR
+    background = apply_brightness(DMC_PLAYING_COLOR, 0.5)
   end
   emu.drawRectangle(242, DMC_OFFSET - 6, 13, 13, background, true)
   emu.drawRectangle(241, DMC_OFFSET - 5, 15, 11, background, true)
   emu.drawLine(240, DMC_OFFSET - 3, 240, DMC_OFFSET + 3, 0x101010)
-  --emu.drawString(243, DMC_OFFSET - 11, string.format("%02X", (note.address & 0xFF00) >> 8), foreground, background)
-  --emu.drawString(243, DMC_OFFSET - 3, string.format("%02X", note.address & 0xFF), foreground, background)
-  --emu.drawString(246, DMC_OFFSET + 5, string.format("%01X", note.rate), foreground, background)
   tiny_hex(241, DMC_OFFSET - 2, note.address, foreground, 4)
 end
 
@@ -649,7 +646,7 @@ function mesen_draw()
   draw_key_spot(square1_roll[#square1_roll], SQUARE1_COLOR)
   draw_key_spot(square2_roll[#square2_roll], SQUARE2_COLOR)
   draw_key_spot(triangle_roll[#square1_roll], TRIANGLE_COLOR)
-  draw_dmc_head(dmc_roll[#dmc_roll], DMC_COLOR)
+  draw_dmc_head(dmc_roll[#dmc_roll])
 
   handle_input()
 end
