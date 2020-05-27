@@ -8,12 +8,14 @@ local PIANO_ROLL_HEIGHT = PIANO_ROLL_KEYS * PIANO_ROLL_KEY_HEIGHT
 local NOISE_KEY_HEIGHT = 2
 local NOISE_ROLL_HEIGHT = NOISE_KEY_HEIGHT * 16
 local NOISE_ROLL_OFFSET = 200
-local SQUARE1_COLOR = 0xFF4040
-local SQUARE2_COLOR = 0xFFC040
-local TRIANGLE_COLOR = 0x40FF40
-local NOISE_COLOR = 0x4040FF
-local DMC_BASE_COLOR = 0x808040FF
-local DMC_PLAYING_COLOR = 0x8040FF
+local SQUARE1_COLORS = {0xFFA0A0, 0xFF40FF, 0xFF4040}
+SQUARE1_COLORS[4] = SQUARE1_COLORS[2]
+local SQUARE2_COLORS = {0xFFE0A0, 0xFFC040, 0xFFFF40}
+SQUARE2_COLORS[4] = SQUARE2_COLORS[2]
+local TRIANGLE_COLORS = {0x40FF40}
+local NOISE_COLORS = {0x4040FF, 0x40FFFF}
+local DMC_BASE_COLOR = 0x806040A0
+local DMC_PLAYING_COLOR = 0x8040C0
 local DMC_OFFSET = 178
 local DMC_HEIGHT = 19
 local BACKGROUND_COLOR = 0x80000000
@@ -34,7 +36,7 @@ function toggle_background()
     PIANO_STRING_WHITE_COLOR = 0xFF000000
     NOISE_STRING_BLACK_COLOR = 0xFF060606
     NOISE_STRING_WHITE_COLOR = 0xFF0A0A0A
-    DMC_BASE_COLOR = 0xFF8040FF
+    DMC_BASE_COLOR = 0x806040A0
   elseif settings.background == "transparent" then
     settings.background = "solid"
     BACKGROUND_COLOR = 0x80000000
@@ -42,7 +44,7 @@ function toggle_background()
     PIANO_STRING_WHITE_COLOR = 0x80060606
     NOISE_STRING_BLACK_COLOR = 0x80060606
     NOISE_STRING_WHITE_COLOR = 0x800A0A0A
-    DMC_BASE_COLOR = 0x808040FF
+    DMC_BASE_COLOR = 0x806040A0
   elseif settings.background == "solid" then
     settings.background = "clear"
     BACKGROUND_COLOR = 0x000000
@@ -50,7 +52,7 @@ function toggle_background()
     PIANO_STRING_WHITE_COLOR = 0x060606
     NOISE_STRING_BLACK_COLOR = 0x060606
     NOISE_STRING_WHITE_COLOR = 0x0A0A0A
-    DMC_BASE_COLOR = 0xFF8040FF
+    DMC_BASE_COLOR = 0x006040A0
   end
 end
 
@@ -257,6 +259,7 @@ function update_piano_roll(channel, state_table)
     -- pulse channels
     channel_state.volume = channel.envelope.volume
     channel_state.enabled = channel.envelope.volume ~= 0 and channel.lengthCounter.counter > 0
+    channel_state.duty = channel.duty
   else
     -- triangle channels
     channel_state.volume = 6
@@ -264,6 +267,7 @@ function update_piano_roll(channel, state_table)
       channel.lengthCounter.counter > 0 and
       channel.period > 2 and
       channel.enabled
+    channel_state.duty = 0
   end
   
   table.insert(state_table, channel_state)
@@ -295,6 +299,7 @@ function update_noise_roll(channel, state_table)
   if noise_period_table[channel.period + 1] then
     channel_state.y = noise_period_table[channel.period + 1] * NOISE_KEY_HEIGHT
     channel_state.period = noise_period_table[channel.period + 1]
+    channel_state.mode = channel.modeFlag
   end
   channel_state.volume = channel.envelope.volume
   channel_state.enabled = channel.envelope.volume ~= 0 and channel.lengthCounter.counter > 0
@@ -342,42 +347,41 @@ function update_dmc_roll(channel, state_table)
   old_dmc_level = channel.outputVolume
 end
 
-function draw_piano_roll(emu, state_table, base_color)  
+function draw_piano_roll(emu, state_table, duty_colors)  
   for x = 1, #state_table do
     if state_table[x].enabled and state_table[x].y then
       local volume = state_table[x].volume
       local y = state_table[x].y - 2
-      local foreground = base_color
-      --local background = apply_brightness(base_color, 0.2)
-      --emu.drawLine(x, y-2, x, y+2, background)
+      local foreground = duty_colors[state_table[x].duty + 1]
       -- outer lines, drawn at brightness dependant on volume
       local outermost_volume = math.max(0, volume - 8) / 8
       local outermost_brightness = math.min(1.0, outermost_volume)
-      emu.drawLine(x - 1, y-2, x - 1, y+2, apply_transparency(base_color, outermost_brightness))
+      emu.drawLine(x - 1, y-2, x - 1, y+2, apply_transparency(foreground, outermost_brightness))
       local innermost_volume = volume / 8
       local innermost_brightness = math.min(1.0, innermost_volume)
-      emu.drawLine(x - 1, y-1, x - 1, y+1, apply_transparency(base_color, innermost_brightness))
+      emu.drawLine(x - 1, y-1, x - 1, y+1, apply_transparency(foreground, innermost_brightness))
       -- center line, always drawn at full brightness when playing
       emu.drawPixel(x - 1, y, foreground)
     end
   end
 end
 
-function draw_noise_roll(emu, state_table, base_color)  
+function draw_noise_roll(emu, state_table, duty_colors)  
   for x = 1, #state_table do
     if state_table[x].enabled and state_table[x].y then
       local volume = state_table[x].volume
       local y = state_table[x].y
-      local foreground = base_color
-      --local background = apply_brightness(base_color, 0.2)
-      --emu.drawLine(x, y-2, x, y+2, background)
+      local foreground = duty_colors[1]
+      if state_table[x].mode then
+        foreground = duty_colors[2]
+      end
       -- outer lines, drawn at brightness dependant on volume
       local outermost_volume = math.max(0, volume - 8) / 8
       local outermost_brightness = math.min(1.0, outermost_volume)
-      emu.drawLine(x - 1, NOISE_ROLL_OFFSET + y-2, x - 1, NOISE_ROLL_OFFSET + y+2, apply_transparency(base_color, outermost_brightness))
+      emu.drawLine(x - 1, NOISE_ROLL_OFFSET + y-2, x - 1, NOISE_ROLL_OFFSET + y+2, apply_transparency(foreground, outermost_brightness))
       local innermost_volume = volume / 8
       local innermost_brightness = math.min(1.0, innermost_volume)
-      emu.drawLine(x - 1, NOISE_ROLL_OFFSET + y-1, x - 1, NOISE_ROLL_OFFSET + y+1, apply_transparency(base_color, innermost_brightness))
+      emu.drawLine(x - 1, NOISE_ROLL_OFFSET + y-1, x - 1, NOISE_ROLL_OFFSET + y+1, apply_transparency(foreground, innermost_brightness))
       -- center line, always drawn at full brightness when playing
       emu.drawPixel(x - 1, NOISE_ROLL_OFFSET + y, foreground)
     end
@@ -498,7 +502,7 @@ function draw_black_key(y, color)
   emu.drawLine(241, y + 1, 247, y + 1, color)
 end
 
-function draw_key_spot(note, base_color)
+function draw_key_spot(note, duty_colors)
   if (note.y == nil or note.enabled == false) then
     return
   end
@@ -516,6 +520,8 @@ function draw_key_spot(note, base_color)
     draw_center_white_key,--D
     draw_black_key,       --Db
   }
+
+  local base_color = duty_colors[note.duty + 1]
   
   local note_key = (note.y - 2) / PIANO_ROLL_KEY_HEIGHT
   local base_key = math.floor(note_key)
@@ -538,7 +544,7 @@ function draw_pad(x, y, value, foreground, background)
   tiny_hex_char(x+1,y+1,value,foreground)
 end
 
-function draw_noise_pads(active_note)
+function draw_noise_pads(active_note, duty_colors)
   local pad_colors = {
     0x101010,
     0x121212,
@@ -564,7 +570,10 @@ function draw_noise_pads(active_note)
     local color = pad_colors[(0xF - i) + 1]
     local hex_value = 0xF - i;
     if (active_note.y and active_note.enabled and active_note.period == i) then
-      color = NOISE_COLOR
+      color = duty_colors[1]
+      if active_note.mode then
+        color = duty_colors[2]
+      end
     end
     draw_pad(x, y, hex_value, apply_brightness(color, 1.8), color)
   end
@@ -636,16 +645,16 @@ function mesen_draw()
   draw_piano_strings()
   draw_piano_keys()
   draw_noise_strings()
-  draw_noise_pads(noise_roll[#noise_roll])
+  draw_noise_pads(noise_roll[#noise_roll], NOISE_COLORS)
   
-  draw_piano_roll(emu, square1_roll, SQUARE1_COLOR) 
-  draw_piano_roll(emu, square2_roll, SQUARE2_COLOR) 
-  draw_piano_roll(emu, triangle_roll, TRIANGLE_COLOR)
-  draw_noise_roll(emu, noise_roll, NOISE_COLOR)
+  draw_piano_roll(emu, square1_roll, SQUARE1_COLORS) 
+  draw_piano_roll(emu, square2_roll, SQUARE2_COLORS) 
+  draw_piano_roll(emu, triangle_roll, TRIANGLE_COLORS)
+  draw_noise_roll(emu, noise_roll, NOISE_COLORS)
   draw_dmc_roll(emu, dmc_roll)
-  draw_key_spot(square1_roll[#square1_roll], SQUARE1_COLOR)
-  draw_key_spot(square2_roll[#square2_roll], SQUARE2_COLOR)
-  draw_key_spot(triangle_roll[#square1_roll], TRIANGLE_COLOR)
+  draw_key_spot(square1_roll[#square1_roll], SQUARE1_COLORS)
+  draw_key_spot(square2_roll[#square2_roll], SQUARE2_COLORS)
+  draw_key_spot(triangle_roll[#square1_roll], TRIANGLE_COLORS)
   draw_dmc_head(dmc_roll[#dmc_roll])
 
   handle_input()
