@@ -12,7 +12,8 @@ local SQUARE1_COLOR = 0xFF4040
 local SQUARE2_COLOR = 0xFFC040
 local TRIANGLE_COLOR = 0x40FF40
 local NOISE_COLOR = 0x4040FF
-local DMC_COLOR = 0x8040FF
+local DMC_BASE_COLOR = 0x808040FF
+local DMC_PLAYING_COLOR = 0x8040FF
 local DMC_OFFSET = 178
 local DMC_HEIGHT = 19
 local BACKGROUND_COLOR = 0x80000000
@@ -33,6 +34,7 @@ function toggle_background()
     PIANO_STRING_WHITE_COLOR = 0xFF000000
     NOISE_STRING_BLACK_COLOR = 0xFF060606
     NOISE_STRING_WHITE_COLOR = 0xFF0A0A0A
+    DMC_BASE_COLOR = 0xFF8040FF
   elseif settings.background == "transparent" then
     settings.background = "solid"
     BACKGROUND_COLOR = 0x80000000
@@ -40,6 +42,7 @@ function toggle_background()
     PIANO_STRING_WHITE_COLOR = 0x80060606
     NOISE_STRING_BLACK_COLOR = 0x80060606
     NOISE_STRING_WHITE_COLOR = 0x800A0A0A
+    DMC_BASE_COLOR = 0x808040FF
   elseif settings.background == "solid" then
     settings.background = "clear"
     BACKGROUND_COLOR = 0x000000
@@ -47,6 +50,7 @@ function toggle_background()
     PIANO_STRING_WHITE_COLOR = 0x060606
     NOISE_STRING_BLACK_COLOR = 0x060606
     NOISE_STRING_WHITE_COLOR = 0x0A0A0A
+    DMC_BASE_COLOR = 0xFF8040FF
   end
 end
 
@@ -569,12 +573,12 @@ function draw_noise_pads(active_note)
   emu.drawLine(241, NOISE_ROLL_OFFSET + 30, 243, NOISE_ROLL_OFFSET + 30, NOISE_STRING_BLACK_COLOR)
 end
 
-function draw_dmc_roll(emu, state_table, base_color)
+function draw_dmc_roll(emu, state_table)
   for x = 1, #state_table do
     local y = DMC_OFFSET
-    local color = base_color
+    local color = DMC_PLAYING_COLOR
     if not state_table[x].playing then
-      color = apply_brightness(base_color, 0.5)
+      color = DMC_BASE_COLOR
     end
     -- width of "sample" based on delta, maximum is 127
     local sample_offset = math.floor((state_table[x].delta / 127) * DMC_HEIGHT)
@@ -641,7 +645,7 @@ function mesen_draw()
   draw_piano_roll(emu, square2_roll, SQUARE2_COLOR) 
   draw_piano_roll(emu, triangle_roll, TRIANGLE_COLOR)
   draw_noise_roll(emu, noise_roll, NOISE_COLOR)
-  draw_dmc_roll(emu, dmc_roll, DMC_COLOR)
+  draw_dmc_roll(emu, dmc_roll)
   draw_key_spot(square1_roll[#square1_roll], SQUARE1_COLOR)
   draw_key_spot(square2_roll[#square2_roll], SQUARE2_COLOR)
   draw_key_spot(triangle_roll[#square1_roll], TRIANGLE_COLOR)
