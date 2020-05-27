@@ -1,4 +1,4 @@
-#Mesen Piano Roll
+# Mesen Piano Roll
 
 This script is a port of the piano roll feature from [RusticNes](https://github.com/zeta0134/rusticnes-sdl), implemented as a Lua script for the awesome [Mesen](https://github.com/SourMesen/Mesen) NES emulator. 
 
