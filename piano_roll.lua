@@ -28,6 +28,45 @@ local settings = {
   background="transparent"
 }
 
+local shadow_apu = {}
+for address = 0x4000, 0x4017 do
+  shadow_apu[address] = 0
+end
+
+local shadow_triangle = {}
+shadow_triangle.lc_reload = false
+shadow_triangle.lc_value = 0
+
+function clock_linear_counter()
+  if shadow_triangle.lc_reload then
+    shadow_triangle.lc_value = shadow_apu[0x4008] & 0x7F
+  else
+    if shadow_triangle.lc_value > 0 then
+      shadow_triangle.lc_value = shadow_triangle.lc_value - 1
+    end
+  end
+  if shadow_apu[0x4008] & 0x80 == 0 then
+    shadow_triangle.lc_reload = false
+  end
+end
+
+function clock_shadow_frame_sequencer()
+  clock_linear_counter()
+  clock_linear_counter()
+  clock_linear_counter()
+  clock_linear_counter()
+end
+
+function apu_register_write(address, value)
+  shadow_apu[address] = value
+  if address == 0x400B then
+    shadow_triangle.lc_reload = true
+  end
+end
+
+emu.addEventCallback(clock_shadow_frame_sequencer, emu.eventType.endFrame)
+emu.addMemoryCallback(apu_register_write, emu.memCallbackType.cpuWrite, 0x4000 , 0x4017)
+
 function toggle_background()
   if settings.background == "clear" then
     settings.background = "transparent"
@@ -265,6 +304,7 @@ function update_piano_roll(channel, state_table)
     channel_state.volume = 6
     channel_state.enabled = 
       channel.lengthCounter.counter > 0 and
+      shadow_triangle.lc_value > 0 and
       channel.period > 2 and
       channel.enabled
     channel_state.duty = 0
@@ -294,6 +334,14 @@ noise_period_table[1016] =  13
 noise_period_table[2034] =  14
 noise_period_table[4068] =  15
 
+function debug_table_keys(name, t)
+  local keys = {}
+  for k,v in pairs(t) do
+    keys[#keys+1] = k
+  end
+  emu.log(name..": "..table.concat(keys, ","))
+end
+
 function update_noise_roll(channel, state_table)
   local channel_state = {}
   if noise_period_table[channel.period + 1] then
@@ -301,8 +349,13 @@ function update_noise_roll(channel, state_table)
     channel_state.period = noise_period_table[channel.period + 1]
     channel_state.mode = channel.modeFlag
   end
-  channel_state.volume = channel.envelope.volume
-  channel_state.enabled = channel.envelope.volume ~= 0 and channel.lengthCounter.counter > 0
+  if channel.envelope.constantVolume then
+    channel_state.volume = channel.envelope.volume
+  else 
+    channel_state.volume = channel.envelope.counter
+  end
+  channel_state.enabled = channel_state.volume ~= 0 and channel.lengthCounter.counter > 0
+
   table.insert(state_table, channel_state)
   if #state_table > PIANO_ROLL_WIDTH then
     table.remove(state_table, 1)
@@ -608,6 +661,14 @@ function draw_dmc_head(note)
   tiny_hex(241, DMC_OFFSET - 2, note.address, foreground, 4)
 end
 
+function draw_apu_registers()
+  emu.drawRectangle(8, 0, 31, 240, 0x40000000, true)
+  for i = 0x4000, 0x4017 do
+    tiny_hex(10, (i - 0x4000) * 6, i, 0xFFFFFF, 4)
+    tiny_hex(30, (i - 0x4000) * 6, shadow_apu[i], 0xFFFFFF, 2)
+  end
+end
+
 local old_mouse_state = {}
 
 function is_region_clicked(x ,y, width, height, mouse_state)
@@ -656,6 +717,8 @@ function mesen_draw()
   draw_key_spot(square2_roll[#square2_roll], SQUARE2_COLORS)
   draw_key_spot(triangle_roll[#square1_roll], TRIANGLE_COLORS)
   draw_dmc_head(dmc_roll[#dmc_roll])
+
+  draw_apu_registers()
 
   handle_input()
 end
