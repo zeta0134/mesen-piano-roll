@@ -606,19 +606,31 @@ function draw_key_spot(note, duty_colors)
   }
 
   local base_color = duty_colors[note.duty + 1]
+
+  -- Calculate two key spots, based on tuning. This helps to
+  -- highlight intentionally out of tune notes, and lights up the closest
+  -- piano keys relative to standard tuning. The brightness of each pad is
+  -- relative to the tuning offset, so the brighter key is (usually) the
+  -- real note
   
   local note_key = (note.y - 2) / PIANO_ROLL_KEY_HEIGHT
   local base_key = math.floor(note_key)
   local base_percent = 1.0 - (note_key % 1)
   local adjacent_key = math.ceil(note_key)
   local adjacent_percent = note_key % 1
-  
+
+  -- Now take both of these colors and apply some transparency based on volume
+  local volume_percent = (note.volume / 15) * 0.75 + 0.25
+  base_percent = base_percent * volume_percent
+  adjacent_percent = adjacent_percent * volume_percent
+
   local base_y = base_key * PIANO_ROLL_KEY_HEIGHT
   local base_key_color = apply_transparency(base_color, base_percent)
-  key_drawing_functions[base_key % 12 + 1](base_y, base_key_color)
   
   local adjacent_y = adjacent_key * PIANO_ROLL_KEY_HEIGHT
   local adjacent_key_color = apply_transparency(base_color, adjacent_percent)
+
+  key_drawing_functions[base_key % 12 + 1](base_y, base_key_color)
   key_drawing_functions[adjacent_key % 12 + 1](adjacent_y, adjacent_key_color)
 end
 
