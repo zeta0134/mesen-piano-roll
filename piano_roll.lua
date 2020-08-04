@@ -300,6 +300,25 @@ local triangle_roll = {}
 local noise_roll = {}
 local dmc_roll = {}
 
+function initialize_piano_roll()
+  for i = 1, PIANO_ROLL_WIDTH - 1 do
+    local channel_state = {}
+    -- this is enough for pulse, triangle, and noise
+    channel_state.enabled = false
+    -- dmc calculates a delta, so it needs full dummy samples
+    channel_state.playing = false
+    channel_state.delta = 0
+
+    table.insert(square1_roll, channel_state)
+    table.insert(square2_roll, channel_state)
+    table.insert(triangle_roll, channel_state)
+    table.insert(noise_roll, channel_state)
+    table.insert(dmc_roll, channel_state)
+  end
+end
+
+initialize_piano_roll()
+
 function update_piano_roll(channel, state_table)
   local channel_state = {}
   local coordinate = frequency_to_coordinate(channel.frequency, LOWEST_NOTE_FREQ, HIGHEST_NOTE_FREQ, PIANO_ROLL_HEIGHT)
