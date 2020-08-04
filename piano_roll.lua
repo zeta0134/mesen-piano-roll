@@ -932,20 +932,82 @@ function draw_duty_indicator(x, y, icon_color, box_color, shadow_color, light_co
   end
 end
 
+function draw_sweep_indicator(x, y, icon_color, box_color, shadow_color, light_color, dark_color, selected_light_color, selected_dark_color, sweep_byte)
+  -- sweep icon
+  emu.drawLine(x, y, x+6, y+6, icon_color)
+  emu.drawLine(x+3, y+4, x+5, y+6, icon_color)
+  emu.drawLine(x+3, y+5, x+4, y+6, icon_color)
+  emu.drawLine(x+4, y+3, x+6, y+5, icon_color)
+  emu.drawLine(x+7, y+4, x+7, y+5, icon_color)
+  emu.drawPixel(x+9, y+4, icon_color)
+  emu.drawPixel(x+8, y+2, icon_color)
+
+  -- bar graph indicators
+  emu.drawPixel(x+21, y, icon_color)
+  emu.drawPixel(x+22, y+1, icon_color)
+  emu.drawPixel(x+21, y+2, icon_color)
+  emu.drawPixel(x+24, y, icon_color)
+  emu.drawPixel(x+25, y+1, icon_color)
+  emu.drawPixel(x+24, y+2, icon_color)
+
+  emu.drawPixel(x+21, y+5, icon_color)
+  emu.drawLine(x+22, y+4, x+22, y+6, icon_color)
+  emu.drawLine(x+24, y+4, x+24, y+6, icon_color)
+  emu.drawPixel(x+25, y+5, icon_color)
+
+  -- indicator outlines
+  emu.drawRectangle(x+12, y+1, 7, 7, shadow_color)
+  emu.drawRectangle(x+11, y, 7, 7, box_color, true)
+
+  emu.drawRectangle(x+28, y+1, 9, 7, shadow_color)
+  emu.drawRectangle(x+27, y, 9, 7, box_color, true)
+
+  local enabled = ((sweep_byte & 0x80) ~= 0)
+  local negate = ((sweep_byte & 0x40) ~= 0)
+  local period = ((sweep_byte & 0x70) >> 4)
+  local shift = ((sweep_byte & 0x07))
+
+  if enabled then
+    emu.drawRectangle(x+12, y+1, 5, 5, selected_dark_color, true)
+    emu.drawLine(x+13, y+3, x+15, y+3, selected_light_color)
+    if negate then
+      emu.drawPixel(x+14, y+4, selected_light_color)
+      emu.drawLine(x+12, y+2, x+16, y+2, selected_light_color)
+    else
+      emu.drawPixel(x+14, y+2, selected_light_color)
+      emu.drawLine(x+12, y+4, x+16, y+4, selected_light_color)
+    end
+    emu.drawRectangle(x+28, y+1, 7, 2, selected_dark_color)
+    emu.drawRectangle(x+28, y+4, 7, 2, selected_dark_color)
+    emu.drawRectangle(x+28, y+1, shift, 2, selected_light_color)
+    emu.drawRectangle(x+28, y+4, period, 2, selected_light_color)
+  else
+    -- simply blank out the indicators and draw nothing
+    emu.drawRectangle(x+12, y+1, 5, 5, dark_color, true)
+    emu.drawRectangle(x+28, y+1, 7, 2, dark_color)
+    emu.drawRectangle(x+28, y+4, 7, 2, dark_color)
+  end
+end
+
 function draw_apu_registers()
-  emu.drawRectangle(0, 0, 39, 240, 0xFFFFFF, true)
-  tiny_string(1, 1, "Pulse 1", 0x0)
+  emu.drawRectangle(0, 0, 39, 240, 0x40404040, true)
+  tiny_string(1, 1, "Pulse 1", 0xFFFFFF)
   
-  draw_raw_registers(1, 7, 0x000000, 0x404040, 0xFFFFFF, 0x808080,
+  draw_raw_registers(1, 7, 0x000000, 0x80000000, 0xFFFFFF, 0x808080,
     {shadow_apu[0x4000],shadow_apu[0x4001],shadow_apu[0x4002],shadow_apu[0x4003]})
   draw_duty_indicator(1, 16, 
-    0x000000, --line color
-    0x000000, 0x404040, -- box outline and shadow
+    0x808080, --line color
+    0x000000, 0x80000000, -- box outline and shadow
     0x808080, 0x404040, -- icon color when darkened
     0xFFFFFF, 0x808080, -- icon color when highlighted
     (shadow_apu[0x4000] & 0xC0) >> 6)
 
-
+  draw_sweep_indicator(1, 25, 
+    0x808080, --line color
+    0x000000, 0x80000000, -- box outline and shadow
+    0x808080, 0x404040, -- icon color when darkened
+    0xFFFFFF, 0x808080, -- icon color when highlighted
+    shadow_apu[0x4001])
 
   --for i = 0x4000, 0x4017 do
   --  tiny_hex(10, (i - 0x4000) * 6, i, 0xFFFFFF, 4)
