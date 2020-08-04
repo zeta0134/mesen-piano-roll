@@ -25,7 +25,7 @@ local NOISE_STRING_BLACK_COLOR = 0x80060606
 local NOISE_STRING_WHITE_COLOR = 0x800A0A0A
 
 local settings = {
-  background="transparent"
+  background="solid"
 }
 
 local shadow_apu = {}
@@ -67,25 +67,8 @@ end
 emu.addEventCallback(clock_shadow_frame_sequencer, emu.eventType.endFrame)
 emu.addMemoryCallback(apu_register_write, emu.memCallbackType.cpuWrite, 0x4000 , 0x4017)
 
-function toggle_background()
-  if settings.background == "clear" then
-    settings.background = "transparent"
-    BACKGROUND_COLOR = 0xFF000000
-    PIANO_STRING_BLACK_COLOR = 0xFF000000
-    PIANO_STRING_WHITE_COLOR = 0xFF000000
-    NOISE_STRING_BLACK_COLOR = 0xFF060606
-    NOISE_STRING_WHITE_COLOR = 0xFF0A0A0A
-    DMC_BASE_COLOR = 0x806040A0
-  elseif settings.background == "transparent" then
-    settings.background = "solid"
-    BACKGROUND_COLOR = 0x80000000
-    PIANO_STRING_BLACK_COLOR = 0x80101010
-    PIANO_STRING_WHITE_COLOR = 0x80060606
-    NOISE_STRING_BLACK_COLOR = 0x80060606
-    NOISE_STRING_WHITE_COLOR = 0x800A0A0A
-    DMC_BASE_COLOR = 0x806040A0
-  elseif settings.background == "solid" then
-    settings.background = "clear"
+function set_background()
+  if settings.background == "solid" then
     BACKGROUND_COLOR = 0x000000
     PIANO_STRING_BLACK_COLOR = 0x101010
     PIANO_STRING_WHITE_COLOR = 0x060606
@@ -93,6 +76,35 @@ function toggle_background()
     NOISE_STRING_WHITE_COLOR = 0x0A0A0A
     DMC_BASE_COLOR = 0x006040A0
   end
+  if settings.background == "transparent" then
+    BACKGROUND_COLOR = 0x80000000
+    PIANO_STRING_BLACK_COLOR = 0x80101010
+    PIANO_STRING_WHITE_COLOR = 0x80060606
+    NOISE_STRING_BLACK_COLOR = 0x80060606
+    NOISE_STRING_WHITE_COLOR = 0x800A0A0A
+    DMC_BASE_COLOR = 0x806040A0
+  end
+  if settings.background == "clear" then
+    BACKGROUND_COLOR = 0xFF000000
+    PIANO_STRING_BLACK_COLOR = 0xFF000000
+    PIANO_STRING_WHITE_COLOR = 0xFF000000
+    NOISE_STRING_BLACK_COLOR = 0xFF060606
+    NOISE_STRING_WHITE_COLOR = 0xFF0A0A0A
+    DMC_BASE_COLOR = 0x806040A0
+  end
+end
+-- call this once to initialize
+set_background()
+
+function toggle_background()
+  if settings.background == "clear" then
+    settings.background = "transparent"
+  elseif settings.background == "transparent" then
+    settings.background = "solid"
+  elseif settings.background == "solid" then
+    settings.background = "clear"
+  end
+  set_background()
 end
 
 function tiny_a(x, y, color)
