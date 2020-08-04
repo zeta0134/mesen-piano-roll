@@ -149,6 +149,137 @@ function tiny_f(x, y, color)
   emu.drawPixel(x+1, y+2, color)
 end
 
+function tiny_g(x, y, color)
+  emu.drawLine(x, y+1, x, y+3, color)
+  emu.drawLine(x+1, y, x+2, y, color)
+  emu.drawLine(x+1, y+4, x+2, y+4, color)
+  emu.drawLine(x+2, y+2, x+2, y+3, color)
+end
+
+function tiny_h(x, y, color)
+  emu.drawLine(x, y, x, y+4, color)
+  emu.drawLine(x+2, y, x+2, y+4, color)
+  emu.drawPixel(x+1, y+2, color)
+end
+
+function tiny_i(x, y, color)
+  emu.drawLine(x, y, x+2, y, color)
+  emu.drawLine(x, y+4, x+2, y+4, color)
+  emu.drawLine(x+1, y+1, x+1, y+3, color)
+end
+
+function tiny_j(x, y, color)
+  emu.drawLine(x, y, x+2, y, color)
+  emu.drawLine(x+2, y+1, x+2, y+3, color)
+  emu.drawPixel(x+1, y+4, color)
+  emu.drawPixel(x, y+3, color)
+end
+
+function tiny_k(x, y, color)
+  emu.drawLine(x, y, x, y+4, color)
+  emu.drawPixel(x+1, y+2, color)
+  emu.drawLine(x+2, y, x+2, y+1, color)
+  emu.drawLine(x+2, y+3, x+2, y+4, color)
+end
+
+function tiny_l(x, y, color)
+  emu.drawLine(x, y, x, y+4, color)  
+  emu.drawLine(x+1, y+4, x+2, y+4, color)
+end
+
+function tiny_m(x, y, color)
+  emu.drawLine(x, y, x, y+4, color)  
+  emu.drawLine(x+1, y+1, x+1, y+2, color)  
+  emu.drawLine(x+2, y, x+2, y+4, color)  
+end
+
+function tiny_n(x, y, color)
+  emu.drawLine(x, y, x, y+4, color)  
+  emu.drawPixel(x+1, y, color)  
+  emu.drawLine(x+2, y+1, x+2, y+4, color)  
+end
+
+function tiny_o(x, y, color)
+  emu.drawLine(x, y+1, x, y+3, color)
+  emu.drawLine(x+2, y+1, x+2, y+3, color)
+  emu.drawPixel(x+1, y, color)
+  emu.drawPixel(x+1, y+4, color)
+end
+
+function tiny_p(x, y, color)
+  emu.drawLine(x, y, x, y+4, color)  
+  emu.drawPixel(x+1, y, color)
+  emu.drawPixel(x+2, y+1, color)
+  emu.drawPixel(x+1, y+2, color)
+end
+
+function tiny_q(x, y, color)
+  emu.drawLine(x, y+1, x, y+3, color)
+  emu.drawLine(x+2, y+1, x+2, y+3, color)
+  emu.drawPixel(x+1, y, color)
+  emu.drawPixel(x+1, y+3, color)
+  emu.drawLine(x+1, y+4, x+2, y+4, color)
+end
+
+function tiny_r(x, y, color)
+  emu.drawLine(x, y, x, y+4, color)  
+  emu.drawPixel(x+1, y, color)
+  emu.drawPixel(x+2, y+1, color)
+  emu.drawPixel(x+1, y+2, color)
+  emu.drawLine(x+2, y+3, x+2, y+4, color)  
+end
+
+function tiny_s(x, y, color)
+  emu.drawLine(x+1, y, x+2, y, color)  
+  emu.drawPixel(x, y+1, color)
+  emu.drawPixel(x+1, y+2, color)
+  emu.drawPixel(x+2, y+3, color)
+  emu.drawLine(x, y+4, x+1, y+4, color)  
+end
+
+function tiny_t(x, y, color)
+  emu.drawLine(x, y, x+2, y, color)  
+  emu.drawLine(x+1, y+1, x+1, y+4, color)  
+end
+
+function tiny_u(x, y, color)
+  emu.drawLine(x, y, x, y+4, color)  
+  emu.drawLine(x+2, y, x+2, y+4, color)  
+  emu.drawPixel(x+1, y+4, color)
+end
+
+function tiny_v(x, y, color)
+  emu.drawLine(x, y, x, y+3, color)  
+  emu.drawLine(x+2, y, x+2, y+3, color)  
+  emu.drawPixel(x+1, y+4, color)
+end
+
+function tiny_w(x, y, color)
+  emu.drawLine(x, y, x, y+4, color)  
+  emu.drawLine(x+1, y+2, x+1, y+3, color)  
+  emu.drawLine(x+2, y, x+2, y+4, color)  
+end
+
+function tiny_x(x, y, color)
+  emu.drawLine(x, y, x, y+1, color)  
+  emu.drawLine(x+2, y, x+2, y+1, color)  
+  emu.drawPixel(x+1, y+2, color)
+  emu.drawLine(x, y+3, x, y+4, color)  
+  emu.drawLine(x+2, y+3, x+2, y+4, color)  
+end
+
+function tiny_y(x, y, color)
+  emu.drawLine(x, y, x, y+2, color)  
+  emu.drawLine(x+2, y, x+2, y+2, color)  
+  emu.drawLine(x+1, y+2, x+1, y+4, color)
+end
+
+function tiny_z(x, y, color)
+  emu.drawLine(x, y, x+2, y, color)
+  emu.drawLine(x+2,y+1,x,y+3, color)
+  emu.drawLine(x,y+4,x+2,y+4, color)
+end
+
 function tiny_0(x, y, color)
   emu.drawLine(x, y, x, y+4, color)
   emu.drawLine(x+2, y, x+2, y+4, color)
@@ -220,23 +351,8 @@ end
 
 function tiny_hex_char(x, y, value, color)
   local hex_functions = {
-    tiny_0,
-    tiny_1,
-    tiny_2,
-    tiny_3,
-    tiny_4,
-    tiny_5,
-    tiny_6,
-    tiny_7,
-    tiny_8,
-    tiny_9,
-    tiny_a,
-    tiny_b,
-    tiny_c,
-    tiny_d,
-    tiny_e,
-    tiny_f
-  }
+    tiny_0, tiny_1, tiny_2, tiny_3, tiny_4, tiny_5, tiny_6, tiny_7,
+    tiny_8, tiny_9, tiny_a, tiny_b, tiny_c, tiny_d, tiny_e, tiny_f}
   if hex_functions[value+1] then
     hex_functions[value+1](x,y,color)
   end
@@ -247,6 +363,37 @@ function tiny_hex(x, y, value, color, width)
     width = width - 1
     tiny_hex_char(x + width * 4, y, value & 0xF, color)
     value = value >> 4
+  end
+end
+
+local char_functions = {
+  tiny_a, tiny_b, tiny_c, tiny_d, tiny_e, tiny_f,
+  tiny_g, tiny_h, tiny_i, tiny_j, tiny_k, tiny_l,
+  tiny_m, tiny_n, tiny_o, tiny_p, tiny_q, tiny_r,
+  tiny_s, tiny_t, tiny_u, tiny_v, tiny_w, tiny_x,
+  tiny_y, tiny_z
+}
+
+local num_functions = {
+  tiny_0, tiny_1, tiny_2, tiny_3, tiny_4,
+  tiny_5, tiny_6, tiny_7, tiny_8, tiny_9
+}
+
+function tiny_char(x, y, character_code, color)
+  if character_code >= string.byte("a", 1) and character_code <= string.byte("z") then
+    char_functions[character_code - string.byte("a") + 1](x, y, color)
+  end
+  if character_code >= string.byte("A", 1) and character_code <= string.byte("Z") then
+    char_functions[character_code - string.byte("A") + 1](x, y, color)
+  end
+  if character_code >= string.byte("0", 1) and character_code <= string.byte("9") then
+    num_functions[character_code - string.byte("0") + 1](x, y, color)
+  end
+end
+
+function tiny_string(x, y, str, color)
+  for i = 1, #str do
+    tiny_char(x + ((i-1) * 4), y, string.byte(str, i), color)
   end
 end
 
