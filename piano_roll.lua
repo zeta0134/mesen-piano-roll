@@ -851,14 +851,6 @@ function draw_dmc_head(note)
   tiny_hex(241, DMC_OFFSET - 2, note.address, foreground, 4)
 end
 
-function draw_apu_registers()
-  emu.drawRectangle(8, 0, 31, 240, 0x40000000, true)
-  for i = 0x4000, 0x4017 do
-    tiny_hex(10, (i - 0x4000) * 6, i, 0xFFFFFF, 4)
-    tiny_hex(30, (i - 0x4000) * 6, shadow_apu[i], 0xFFFFFF, 2)
-  end
-end
-
 local old_mouse_state = {}
 
 function is_region_clicked(x ,y, width, height, mouse_state)
@@ -876,6 +868,89 @@ function handle_input()
     toggle_background()
   end
   old_mouse_state = mouse_state
+end
+
+-- drawing functions for various icons in the register display
+function draw_raw_registers(x, y, box_color, shadow_color, numeral_color, background_color, values)
+  emu.drawRectangle(x+1, y+1, 36, 7, shadow_color)
+  emu.drawRectangle(x, y, 36, 7, box_color, true)
+  for i = 1, 4 do
+    emu.drawRectangle(x + ((i - 1) * 9) + 1, y + 1, 7, 5, background_color, true)
+    if values[i] ~= nil then
+      tiny_hex(x + ((i - 1) * 9) + 1, y + 1, values[i], numeral_color, 2)
+    end
+  end
+end
+
+function draw_duty_12(x, y, color)
+  emu.drawLine(x, y+3, x+4, y+3, color)
+  emu.drawLine(x+1, y+1, x+1, y+2, color)
+end
+
+function draw_duty_25(x, y, color)
+  emu.drawLine(x, y+3, x+1, y+3, color)
+  emu.drawLine(x+3, y+3, x+4, y+3, color)
+  emu.drawLine(x+1, y+1, x+3, y+1, color)
+  emu.drawPixel(x+1, y+2, color)
+  emu.drawPixel(x+3, y+2, color)
+end
+
+function draw_duty_50(x, y, color)
+  emu.drawLine(x, y+3, x+2, y+3, color)
+  emu.drawLine(x+2, y+1, x+4, y+1, color)
+  emu.drawPixel(x+2, y+2, color)
+end
+
+function draw_duty_75(x, y, color)
+  emu.drawLine(x, y+1, x+1, y+1, color)
+  emu.drawLine(x+3, y+1, x+4, y+1, color)
+  emu.drawLine(x+1, y+3, x+3, y+3, color)
+  emu.drawPixel(x+1, y+2, color)
+  emu.drawPixel(x+3, y+2, color)
+end
+
+local duty_icon_functions = {draw_duty_12, draw_duty_25, draw_duty_50, draw_duty_75}
+
+function draw_duty_indicator(x, y, icon_color, box_color, shadow_color, light_color, dark_color, selected_light_color, selected_dark_color, duty_cycle)
+  emu.drawLine(x, y+6, x+2, y+6, icon_color)
+  emu.drawLine(x+2, y, x+2, y+5, icon_color)
+  emu.drawLine(x+3, y, x+6, y, icon_color)
+  emu.drawLine(x+7, y, x+7, y+5, icon_color)
+  emu.drawLine(x+7, y+6, x+9, y+6, icon_color)
+
+  emu.drawRectangle(x+12, y+1, 25, 7, shadow_color)
+  emu.drawRectangle(x+11, y, 25, 7, box_color, true)
+
+  for i = 1, 4 do
+    if duty_cycle == (i - 1) then
+      emu.drawRectangle(x + ((i - 1) * 6) + 12, y + 1, 5, 5, selected_dark_color, true)
+      duty_icon_functions[i](x + ((i - 1) * 6) + 12, y + 1, selected_light_color)
+    else
+      emu.drawRectangle(x + ((i - 1) * 6) + 12, y + 1, 5, 5, dark_color, true)
+      duty_icon_functions[i](x + ((i - 1) * 6) + 12, y + 1, light_color)
+    end
+  end
+end
+
+function draw_apu_registers()
+  emu.drawRectangle(0, 0, 39, 240, 0xFFFFFF, true)
+  tiny_string(1, 1, "Pulse 1", 0x0)
+  
+  draw_raw_registers(1, 7, 0x000000, 0x404040, 0xFFFFFF, 0x808080,
+    {shadow_apu[0x4000],shadow_apu[0x4001],shadow_apu[0x4002],shadow_apu[0x4003]})
+  draw_duty_indicator(1, 16, 
+    0x000000, --line color
+    0x000000, 0x404040, -- box outline and shadow
+    0x808080, 0x404040, -- icon color when darkened
+    0xFFFFFF, 0x808080, -- icon color when highlighted
+    (shadow_apu[0x4000] & 0xC0) >> 6)
+
+
+
+  --for i = 0x4000, 0x4017 do
+  --  tiny_hex(10, (i - 0x4000) * 6, i, 0xFFFFFF, 4)
+  --  tiny_hex(30, (i - 0x4000) * 6, shadow_apu[i], 0xFFFFFF, 2)
+  --end
 end
 
 function mesen_draw()
