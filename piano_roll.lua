@@ -989,6 +989,103 @@ function draw_sweep_indicator(x, y, icon_color, box_color, shadow_color, light_c
   end
 end
 
+function draw_volume_envelope_indicator(x, y, icon_color, box_color, shadow_color, light_color, dark_color, selected_light_color, selected_dark_color, volume_byte)
+  -- volume icon
+  emu.drawLine(x, y+2, x, y+4, icon_color)
+  emu.drawPixel(x+1, y+2, icon_color)
+  emu.drawPixel(x+1, y+4, icon_color)
+  emu.drawLine(x+2, y+1, x+2, y+5, icon_color)
+  emu.drawLine(x+3, y, x+3, y+1, icon_color)
+  emu.drawLine(x+3, y+5, x+3, y+6, icon_color)
+  emu.drawPixel(x+4, y, icon_color)
+  emu.drawPixel(x+4, y+6, icon_color)
+  emu.drawLine(x+5, y, x+5, y+6, icon_color)
+  emu.drawLine(x+7, y+2, x+7, y+4, icon_color)
+  emu.drawLine(x+7, y, x+8, y, icon_color)
+  emu.drawLine(x+7, y+6, x+8, y+6, icon_color)
+  emu.drawLine(x+9, y+1, x+9, y+5, icon_color)
+
+  -- box backgrounds and scaffolding
+  emu.drawRectangle(x+12, y+1, 13, 7, shadow_color)
+  emu.drawRectangle(x+11, y, 13, 7, box_color, true)
+
+  emu.drawLine(x+25, y+4, x+32, y+4, shadow_color)
+  emu.drawLine(x+24, y+3, x+31, y+3, box_color)
+
+  emu.drawRectangle(x+32, y+1, 5, 7, shadow_color)
+  emu.drawRectangle(x+31, y, 5, 7, box_color, true)
+
+  local constant_volume = ((volume_byte & 0x10) ~= 0)
+
+  if constant_volume then
+    -- draw un-highlighted icons
+    emu.drawRectangle(x+12, y+1, 5, 5, dark_color, true)
+    emu.drawRectangle(x+12, y+1, 2, 5, light_color, true)
+    emu.drawRectangle(x+14, y+2, 2, 3, light_color, true)
+    emu.drawPixel(x+16, y+3, light_color)
+
+    emu.drawRectangle(x+18, y+1, 5, 5, dark_color, true)
+    emu.drawPixel(x+19, y+2, light_color)
+    emu.drawPixel(x+19, y+4, light_color)
+    emu.drawLine(x+21, y+1, x+21, y+5, light_color)
+
+    -- do not draw envelope period, but blank the cell
+    emu.drawRectangle(x+32, y+1, 3, 5, dark_color, true)
+  else
+    -- draw uhighlighted icons
+    emu.drawRectangle(x+12, y+1, 5, 5, selected_dark_color, true)
+    emu.drawRectangle(x+12, y+1, 2, 5, selected_light_color, true)
+    emu.drawRectangle(x+14, y+2, 2, 3, selected_light_color, true)
+    emu.drawPixel(x+16, y+3, selected_light_color) 
+
+    local loop = (volume_byte & 0x30) ~= 0
+    if loop then
+      emu.drawRectangle(x+18, y+1, 5, 5, selected_dark_color, true)
+      emu.drawPixel(x+19, y+2, selected_light_color)
+      emu.drawPixel(x+19, y+4, selected_light_color)
+      emu.drawLine(x+21, y+1, x+21, y+5, selected_light_color)
+    else
+      emu.drawRectangle(x+18, y+1, 5, 5, dark_color, true)
+      emu.drawPixel(x+19, y+2, light_color)
+      emu.drawPixel(x+19, y+4, light_color)
+      emu.drawLine(x+21, y+1, x+21, y+5, light_color)
+    end
+
+    -- populate the envelope period
+    local period = (volume_byte & 0xF)
+    emu.drawRectangle(x+32, y+1, 3, 5, selected_dark_color, true)
+    tiny_hex(x+32, y+1, period, selected_light_color, 1)
+  end
+end
+
+function draw_volume_bar(x, y, icon_color, box_color, shadow_color, light_color, dark_color, selected_light_color, selected_dark_color, volume_byte, current_volume)
+  emu.drawRectangle(x+1, y+1, 36, 7, shadow_color)
+  emu.drawRectangle(x, y, 36, 7, box_color, true)
+
+  -- first, handle the constant volume indicator
+  local constant_volume = ((volume_byte & 0x10) ~= 0)
+  if constant_volume then
+    emu.drawRectangle(x+1, y+1, 3, 5, selected_dark_color, true)
+    tiny_hex(x+1, y+1, current_volume, selected_light_color, 1)
+  else
+    emu.drawRectangle(x+1, y+1, 3, 5, dark_color, true)
+  end
+
+  -- then, based on the current playing volume, update the bar. Note this is the output volume, NOT the
+  -- value written to the register. It should follow the active envelope.
+  for i = 1, 15 do
+    local dx = x+5 + ((i-1) * 2)
+    local dy = y+1
+    if current_volume >= i then
+      emu.drawLine(dx, dy, dx, dy+4, selected_dark_color)
+      emu.drawLine(dx+1, dy, dx+1, dy+4, selected_light_color)
+    else
+      emu.drawLine(dx, dy, dx, dy+4, dark_color)
+      emu.drawLine(dx+1, dy, dx+1, dy+4, light_color)
+    end
+  end
+end
+
 function draw_apu_registers()
   emu.drawRectangle(0, 0, 39, 240, 0x40202020, true)
   tiny_string(1, 1, "Pulse 1", 0xFFFFFF)
@@ -1008,6 +1105,21 @@ function draw_apu_registers()
     0x808080, 0x404040, -- icon color when darkened
     0xFFFFFF, 0x808080, -- icon color when highlighted
     shadow_apu[0x4001])
+
+  draw_volume_envelope_indicator(1, 34, 
+    0x808080, --line color
+    0x000000, 0x80000000, -- box outline and shadow
+    0x808080, 0x404040, -- icon color when darkened
+    0xFFFFFF, 0x808080, -- icon color when highlighted
+    shadow_apu[0x4000])
+
+  draw_volume_bar(1, 43, 
+    0x808080, --line color
+    0x000000, 0x80000000, -- box outline and shadow
+    0x808080, 0x404040, -- icon color when darkened
+    0xFFFFFF, 0x808080, -- icon color when highlighted
+    shadow_apu[0x4000],
+    square1_roll[#square1_roll].volume)
 
   --for i = 0x4000, 0x4017 do
   --  tiny_hex(10, (i - 0x4000) * 6, i, 0xFFFFFF, 4)
