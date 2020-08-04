@@ -990,10 +990,10 @@ function draw_sweep_indicator(x, y, icon_color, box_color, shadow_color, light_c
 end
 
 function draw_apu_registers()
-  emu.drawRectangle(0, 0, 39, 240, 0x40404040, true)
+  emu.drawRectangle(0, 0, 39, 240, 0x40202020, true)
   tiny_string(1, 1, "Pulse 1", 0xFFFFFF)
   
-  draw_raw_registers(1, 7, 0x000000, 0x80000000, 0xFFFFFF, 0x808080,
+  draw_raw_registers(1, 7, 0x000000, 0x80000000, 0x808080, 0x404040,
     {shadow_apu[0x4000],shadow_apu[0x4001],shadow_apu[0x4002],shadow_apu[0x4003]})
   draw_duty_indicator(1, 16, 
     0x808080, --line color
