@@ -971,11 +971,11 @@ function draw_sweep_indicator(x, y, icon_color, box_color, shadow_color, light_c
     emu.drawRectangle(x+12, y+1, 5, 5, selected_dark_color, true)
     emu.drawLine(x+13, y+3, x+15, y+3, selected_light_color)
     if negate then
-      emu.drawPixel(x+14, y+4, selected_light_color)
-      emu.drawLine(x+12, y+2, x+16, y+2, selected_light_color)
-    else
       emu.drawPixel(x+14, y+2, selected_light_color)
       emu.drawLine(x+12, y+4, x+16, y+4, selected_light_color)
+    else
+      emu.drawPixel(x+14, y+4, selected_light_color)
+      emu.drawLine(x+12, y+2, x+16, y+2, selected_light_color)
     end
     emu.drawRectangle(x+28, y+1, 7, 2, selected_dark_color)
     emu.drawRectangle(x+28, y+4, 7, 2, selected_dark_color)
