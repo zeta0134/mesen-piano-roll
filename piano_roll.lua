@@ -937,6 +937,16 @@ function draw_duty_indicator(x, y, icon_color, box_color, shadow_color, light_co
 end
 
 function draw_sweep_indicator(x, y, icon_color, box_color, shadow_color, light_color, dark_color, selected_light_color, selected_dark_color, sweep_byte)
+  local negate = ((sweep_byte & 0x40) ~= 0)
+  local period = ((sweep_byte & 0x70) >> 4)
+  local shift = ((sweep_byte & 0x07))
+  local enabled = ((sweep_byte & 0x80) ~= 0) and (shift ~= 0)
+
+  local icon_color = light_color
+  if enabled then
+    icon_color = selected_light_color
+  end
+
   -- sweep icon
   emu.drawLine(x, y, x+6, y+6, icon_color)
   emu.drawLine(x+3, y+4, x+5, y+6, icon_color)
@@ -966,11 +976,6 @@ function draw_sweep_indicator(x, y, icon_color, box_color, shadow_color, light_c
   emu.drawRectangle(x+28, y+1, 9, 7, shadow_color)
   emu.drawRectangle(x+27, y, 9, 7, box_color, true)
 
-  local enabled = ((sweep_byte & 0x80) ~= 0)
-  local negate = ((sweep_byte & 0x40) ~= 0)
-  local period = ((sweep_byte & 0x70) >> 4)
-  local shift = ((sweep_byte & 0x07))
-
   if enabled then
     emu.drawRectangle(x+12, y+1, 5, 5, selected_dark_color, true)
     emu.drawLine(x+13, y+3, x+15, y+3, selected_light_color)
@@ -994,6 +999,13 @@ function draw_sweep_indicator(x, y, icon_color, box_color, shadow_color, light_c
 end
 
 function draw_volume_envelope_indicator(x, y, icon_color, box_color, shadow_color, light_color, dark_color, selected_light_color, selected_dark_color, volume_byte)
+  local constant_volume = ((volume_byte & 0x10) ~= 0)
+
+  local icon_color = light_color
+  if not constant_volume then
+    icon_color = selected_light_color
+  end
+
   -- volume icon
   emu.drawLine(x, y+2, x, y+4, icon_color)
   emu.drawPixel(x+1, y+2, icon_color)
@@ -1018,8 +1030,6 @@ function draw_volume_envelope_indicator(x, y, icon_color, box_color, shadow_colo
 
   emu.drawRectangle(x+32, y+1, 5, 7, shadow_color)
   emu.drawRectangle(x+31, y, 5, 7, box_color, true)
-
-  local constant_volume = ((volume_byte & 0x10) ~= 0)
 
   if constant_volume then
     -- draw un-highlighted icons
@@ -1183,7 +1193,7 @@ function draw_dpcm_sample_indicator(x, y, icon_color, box_color, shadow_color, l
   if dpcm_active then
     icon_color = selected_light_color
   end
-  
+
   emu.drawLine(x, y+3, x+9, y+3, icon_color)
   emu.drawLine(x+1, y+2, x+1, y+4, icon_color)
   emu.drawLine(x+2, y+1, x+2, y+5, icon_color)
@@ -1218,6 +1228,11 @@ function draw_dpcm_sample_indicator(x, y, icon_color, box_color, shadow_color, l
 end
 
 function draw_dpcm_length_indicator(x, y, icon_color, box_color, shadow_color, light_color, dark_color, selected_light_color, selected_dark_color, control_byte, length_byte, dpcm_active)
+  local icon_color = light_color
+  if dpcm_active then
+    icon_color = selected_light_color
+  end
+
   emu.drawLine(x+3, y, x+5, y, icon_color)
   emu.drawLine(x+7, y+2, x+7, y+4, icon_color)
   emu.drawLine(x+3, y+6, x+5, y+6, icon_color)
