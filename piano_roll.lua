@@ -1144,6 +1144,41 @@ function draw_noise_mode(x, y, icon_color, box_color, shadow_color, light_color,
   end
 end
 
+function draw_dpcm_sample_indicator(x, y, icon_color, box_color, shadow_color, light_color, dark_color, selected_light_color, selected_dark_color, frequency_byte, sample_address_byte, dpcm_active)
+  emu.drawLine(x, y+3, x+9, y+3, icon_color)
+  emu.drawLine(x+1, y+2, x+1, y+4, icon_color)
+  emu.drawLine(x+2, y+1, x+2, y+5, icon_color)
+  emu.drawLine(x+4, y+2, x+4, y+4, icon_color)
+  emu.drawLine(x+6, y+1, x+6, y+5, icon_color)
+  emu.drawLine(x+7, y, x+7, y+6, icon_color)
+  emu.drawLine(x+8, y+2, x+8, y+4, icon_color)
+
+  emu.drawRectangle(x+13, y+1, 5, 7, shadow_color)
+  emu.drawRectangle(x+12, y, 5, 7, box_color, true)
+
+  emu.drawLine(x+18, y+4, x+19, y+4, shadow_color)
+  emu.drawLine(x+17, y+3, x+18, y+3, box_color)
+
+  emu.drawRectangle(x+20, y+1, 17, 7, shadow_color)
+  emu.drawRectangle(x+19, y, 17, 7, box_color, true)
+
+  local frequency = frequency_byte & 0xF
+  local address = 0xC000 + (sample_address_byte << 6)
+
+  if dpcm_active then
+    emu.drawRectangle(x+13, y+1, 3, 5, selected_dark_color, true)
+    emu.drawRectangle(x+20, y+1, 15, 5, selected_dark_color, true)
+    tiny_hex(x+13, y+1, frequency, selected_light_color, 1)
+    tiny_hex(x+20, y+1, address, selected_light_color, 4)
+  else
+    emu.drawRectangle(x+13, y+1, 3, 5, dark_color, true)
+    emu.drawRectangle(x+20, y+1, 15, 5, dark_color, true)
+    tiny_hex(x+13, y+1, frequency, light_color, 1)
+    tiny_hex(x+20, y+1, address, light_color, 4)
+  end
+
+end
+
 function draw_apu_registers()
   emu.drawRectangle(0, 0, 39, 240, 0x40202020, true)
   tiny_string(1, 1, "Pulse 1", 0xFFFFFF)
@@ -1246,11 +1281,17 @@ function draw_apu_registers()
     shadow_apu[0x400C],
     noise_roll[#noise_roll].volume)
 
-  tiny_string(1, 160, "DPCM", 0xFFFFFF)
+  tiny_string(1, 159, "DPCM", 0xFFFFFF)
 
-  draw_raw_registers(1, 167, 0x000000, 0x80000000, 0x808080, 0x404040,
+  draw_raw_registers(1, 166, 0x000000, 0x80000000, 0x808080, 0x404040,
     {shadow_apu[0x4010],shadow_apu[0x4011],shadow_apu[0x4012],shadow_apu[0x4013]})
 
+  draw_dpcm_sample_indicator(1, 175, 
+    0x808080, --line color
+    0x000000, 0x80000000, -- box outline and shadow
+    0x808080, 0x404040, -- icon color when darkened
+    0xFFFFFF, 0x808080, -- icon color when highlighted
+    shadow_apu[0x4010], shadow_apu[0x4012], dmc_roll[#dmc_roll].playing)
 end
 
 function mesen_draw()
