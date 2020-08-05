@@ -1176,7 +1176,41 @@ function draw_dpcm_sample_indicator(x, y, icon_color, box_color, shadow_color, l
     tiny_hex(x+13, y+1, frequency, light_color, 1)
     tiny_hex(x+20, y+1, address, light_color, 4)
   end
+end
 
+function draw_dpcm_length_indicator(x, y, icon_color, box_color, shadow_color, light_color, dark_color, selected_light_color, selected_dark_color, control_byte, length_byte, dpcm_active)
+  emu.drawLine(x+3, y, x+5, y, icon_color)
+  emu.drawLine(x+7, y+2, x+7, y+4, icon_color)
+  emu.drawLine(x+3, y+6, x+5, y+6, icon_color)
+  emu.drawLine(x+1, y+2, x+1, y+4, icon_color)
+  emu.drawPixel(x+2,y+1, icon_color)
+  emu.drawPixel(x+6,y+1, icon_color)
+  emu.drawPixel(x+2,y+5, icon_color)
+  emu.drawPixel(x+6,y+5, icon_color)
+  emu.drawLine(x+4, y+1, x+4, y+3, icon_color)
+  emu.drawLine(x+5, y+3, x+6, y+3, icon_color)
+
+  emu.drawRectangle(x+18, y+1, 19, 7, shadow_color)
+  emu.drawRectangle(x+17, y, 19, 7, box_color, true)
+
+  local looping = ((control_byte & 0x40) ~= 0)
+  local sample_length = (length_byte * 16) + 1
+
+  if dpcm_active then
+    emu.drawRectangle(x+18,y+1,11, 5, selected_dark_color, true)
+    emu.drawRectangle(x+30,y+1,5, 5, selected_dark_color, true)
+    tiny_hex(x+18,y+1,sample_length, selected_light_color, 3)
+    emu.drawPixel(x+31, y+2, selected_light_color)
+    emu.drawPixel(x+31, y+4, selected_light_color)
+    emu.drawLine(x+33, y+1, x+33, y+5, selected_light_color)
+  else
+    emu.drawRectangle(x+18,y+1,11, 5, dark_color, true)
+    emu.drawRectangle(x+30,y+1,5, 5, dark_color, true)
+    tiny_hex(x+18,y+1,sample_length, light_color, 3)
+    emu.drawPixel(x+31, y+2, light_color)
+    emu.drawPixel(x+31, y+4, light_color)
+    emu.drawLine(x+33, y+1, x+33, y+5, light_color)
+  end
 end
 
 function draw_apu_registers()
@@ -1292,6 +1326,13 @@ function draw_apu_registers()
     0x808080, 0x404040, -- icon color when darkened
     0xFFFFFF, 0x808080, -- icon color when highlighted
     shadow_apu[0x4010], shadow_apu[0x4012], dmc_roll[#dmc_roll].playing)
+
+  draw_dpcm_length_indicator(1, 184, 
+    0x808080, --line color
+    0x000000, 0x80000000, -- box outline and shadow
+    0x808080, 0x404040, -- icon color when darkened
+    0xFFFFFF, 0x808080, -- icon color when highlighted
+    shadow_apu[0x4010], shadow_apu[0x4013], dmc_roll[#dmc_roll].playing)
 end
 
 function mesen_draw()
