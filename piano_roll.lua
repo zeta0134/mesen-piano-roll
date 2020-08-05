@@ -1091,6 +1091,11 @@ function draw_volume_bar(x, y, icon_color, box_color, shadow_color, light_color,
 end
 
 function draw_triangle_indicator(x, y, icon_color, box_color, shadow_color, light_color, dark_color, selected_light_color, selected_dark_color, triangle_playing)
+  local icon_color = light_color
+  if triangle_playing then
+    icon_color = selected_light_color
+  end
+
   emu.drawLine(x, y+5, x+4, y+1, icon_color)
   emu.drawLine(x+5, y+1, x+9, y+5, icon_color)
 
@@ -1142,7 +1147,12 @@ local mode_functions = {}
 mode_functions[0] = draw_mode_0
 mode_functions[1] = draw_mode_1
 
-function draw_noise_mode(x, y, icon_color, box_color, shadow_color, light_color, dark_color, selected_light_color, selected_dark_color, noise_byte)
+function draw_noise_mode(x, y, icon_color, box_color, shadow_color, light_color, dark_color, selected_light_color, selected_dark_color, noise_byte, playing)
+  local icon_color = light_color
+  if playing then
+    icon_color = selected_light_color
+  end
+
   emu.drawPixel(x, y+3, icon_color)
   emu.drawPixel(x+1, y+2, icon_color)
   emu.drawLine(x+2, y+3, x+2, y+5, icon_color)
@@ -1169,6 +1179,11 @@ function draw_noise_mode(x, y, icon_color, box_color, shadow_color, light_color,
 end
 
 function draw_dpcm_sample_indicator(x, y, icon_color, box_color, shadow_color, light_color, dark_color, selected_light_color, selected_dark_color, frequency_byte, sample_address_byte, dpcm_active)
+  local icon_color = light_color
+  if dpcm_active then
+    icon_color = selected_light_color
+  end
+  
   emu.drawLine(x, y+3, x+9, y+3, icon_color)
   emu.drawLine(x+1, y+2, x+1, y+4, icon_color)
   emu.drawLine(x+2, y+1, x+2, y+5, icon_color)
@@ -1346,7 +1361,7 @@ function draw_apu_registers()
     BOX_OUTLINE_COLOR, SHADOW_COLOR, -- box outline and shadow
     UNSELECTED_LIGHT_COLOR, UNSELECTED_DARK_COLOR, -- icon color when darkened
     noise_selected_light, noise_selected_dark, -- icon color when highlighted
-    shadow_apu[0x400E])
+    shadow_apu[0x400E], noise_roll[#noise_roll].enabled)
 
 
   draw_volume_envelope_indicator(1, 220, 
