@@ -1086,6 +1086,26 @@ function draw_volume_bar(x, y, icon_color, box_color, shadow_color, light_color,
   end
 end
 
+function draw_triangle_indicator(x, y, icon_color, box_color, shadow_color, light_color, dark_color, selected_light_color, selected_dark_color, triangle_playing)
+  emu.drawLine(x, y+5, x+4, y+1, icon_color)
+  emu.drawLine(x+5, y+1, x+9, y+5, icon_color)
+
+  emu.drawRectangle(x+12, y+1, 25, 7, shadow_color)
+  emu.drawRectangle(x+11, y, 25, 7, box_color, true)
+
+  if triangle_playing then
+    emu.drawRectangle(x+12, y+1, 23, 5, selected_dark_color, true)
+    emu.drawRectangle(x+21, y+1, 2, 5, selected_light_color)
+    emu.drawRectangle(x+23, y+2, 2, 3, selected_light_color)
+    emu.drawLine(x+25, y+3, x+26, y+3, selected_light_color)
+  else
+    emu.drawRectangle(x+12, y+1, 23, 5, dark_color, true) 
+    emu.drawRectangle(x+21, y+1, 2, 5, light_color)
+    emu.drawRectangle(x+23, y+2, 2, 3, light_color)
+    emu.drawLine(x+25, y+3, x+26, y+3, light_color)
+  end
+end
+
 function draw_mode_0(x, y, color)
   emu.drawPixel(x, y+2, color)
   emu.drawPixel(x+1, y, color)
@@ -1294,10 +1314,20 @@ function draw_apu_registers()
     shadow_apu[0x4004],
     square2_roll[#square2_roll].volume)
 
+  local triangle_selected_light = TRIANGLE_COLORS[1]
+  local triangle_selected_dark = triangle_selected_light + 0xB0000000
+
   tiny_string(1, 119, "Triangle", 0xFFFFFF)
 
   draw_raw_registers(1, 126, BOX_OUTLINE_COLOR, SHADOW_COLOR, UNSELECTED_LIGHT_COLOR, UNSELECTED_DARK_COLOR,
     {shadow_apu[0x4008],shadow_apu[0x4009],shadow_apu[0x400A],shadow_apu[0x400B]})
+
+  draw_triangle_indicator(1, 135, 
+    ICON_COLOR, --line color
+    BOX_OUTLINE_COLOR, SHADOW_COLOR, -- box outline and shadow
+    UNSELECTED_LIGHT_COLOR, UNSELECTED_DARK_COLOR, -- icon color when darkened
+    triangle_selected_light, triangle_selected_dark, -- icon color when highlighted
+    triangle_roll[#triangle_roll].enabled)
 
   local noise_mode = ((shadow_apu[0x400E] & 0x80) >> 7)
   local noise_selected_light = NOISE_COLORS[noise_mode+1]
