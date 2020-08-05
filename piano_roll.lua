@@ -1213,125 +1213,143 @@ function draw_dpcm_length_indicator(x, y, icon_color, box_color, shadow_color, l
   end
 end
 
+local ICON_COLOR = 0x808080
+local SHADOW_COLOR = 0x80000000
+local BOX_OUTLINE_COLOR = 0x000000
+local UNSELECTED_DARK_COLOR = 0x404040
+local UNSELECTED_LIGHT_COLOR = 0x808080
+
 function draw_apu_registers()
   emu.drawRectangle(0, 0, 39, 240, 0x40202020, true)
-  tiny_string(1, 1, "Pulse 1", 0xFFFFFF)
 
-  draw_raw_registers(1, 7, 0x000000, 0x80000000, 0x808080, 0x404040,
+  local square1_duty = (shadow_apu[0x4000] & 0xC0) >> 6
+  local square1_selected_light = SQUARE1_COLORS[square1_duty + 1]
+  local square1_selected_dark = square1_selected_light + 0xB0000000
+
+  tiny_string(1, 1, "Pulse 1", 0xFFFFFF)
+  draw_raw_registers(1, 7, BOX_OUTLINE_COLOR, SHADOW_COLOR, UNSELECTED_LIGHT_COLOR, UNSELECTED_DARK_COLOR,
     {shadow_apu[0x4000],shadow_apu[0x4001],shadow_apu[0x4002],shadow_apu[0x4003]})
   draw_duty_indicator(1, 16, 
-    0x808080, --line color
-    0x000000, 0x80000000, -- box outline and shadow
-    0x808080, 0x404040, -- icon color when darkened
-    0xFFFFFF, 0x808080, -- icon color when highlighted
+    ICON_COLOR, --line color
+    BOX_OUTLINE_COLOR, SHADOW_COLOR, -- box outline and shadow
+    UNSELECTED_LIGHT_COLOR, UNSELECTED_DARK_COLOR, -- icon color when darkened
+    square1_selected_light, square1_selected_dark, -- icon color when highlighted
     (shadow_apu[0x4000] & 0xC0) >> 6)
 
   draw_sweep_indicator(1, 25, 
-    0x808080, --line color
-    0x000000, 0x80000000, -- box outline and shadow
-    0x808080, 0x404040, -- icon color when darkened
-    0xFFFFFF, 0x808080, -- icon color when highlighted
+    ICON_COLOR, --line color
+    BOX_OUTLINE_COLOR, SHADOW_COLOR, -- box outline and shadow
+    UNSELECTED_LIGHT_COLOR, UNSELECTED_DARK_COLOR, -- icon color when darkened
+    square1_selected_light, square1_selected_dark, -- icon color when highlighted
     shadow_apu[0x4001])
 
   draw_volume_envelope_indicator(1, 34, 
-    0x808080, --line color
-    0x000000, 0x80000000, -- box outline and shadow
-    0x808080, 0x404040, -- icon color when darkened
-    0xFFFFFF, 0x808080, -- icon color when highlighted
+    ICON_COLOR, --line color
+    BOX_OUTLINE_COLOR, SHADOW_COLOR, -- box outline and shadow
+    UNSELECTED_LIGHT_COLOR, UNSELECTED_DARK_COLOR, -- icon color when darkened
+    square1_selected_light, square1_selected_dark, -- icon color when highlighted
     shadow_apu[0x4000])
 
   draw_volume_bar(1, 43, 
-    0x808080, --line color
-    0x000000, 0x80000000, -- box outline and shadow
-    0x808080, 0x404040, -- icon color when darkened
-    0xFFFFFF, 0x808080, -- icon color when highlighted
+    ICON_COLOR, --line color
+    BOX_OUTLINE_COLOR, SHADOW_COLOR, -- box outline and shadow
+    UNSELECTED_LIGHT_COLOR, UNSELECTED_DARK_COLOR, -- icon color when darkened
+    square1_selected_light, square1_selected_dark, -- icon color when highlighted
     shadow_apu[0x4000],
     square1_roll[#square1_roll].volume)
 
-  tiny_string(1, 60, "Pulse 2", 0xFFFFFF)
+  local square2_duty = (shadow_apu[0x4004] & 0xC0) >> 6
+  local square2_selected_light = SQUARE2_COLORS[square2_duty + 1]
+  local square2_selected_dark = square2_selected_light + 0xB0000000
 
-  draw_raw_registers(1, 66, 0x000000, 0x80000000, 0x808080, 0x404040,
+  tiny_string(1, 60, "Pulse 2", 0xFFFFFF)
+  draw_raw_registers(1, 66, BOX_OUTLINE_COLOR, SHADOW_COLOR, UNSELECTED_LIGHT_COLOR, UNSELECTED_DARK_COLOR,
     {shadow_apu[0x4004],shadow_apu[0x4005],shadow_apu[0x4006],shadow_apu[0x4007]})
   draw_duty_indicator(1, 75, 
-    0x808080, --line color
-    0x000000, 0x80000000, -- box outline and shadow
-    0x808080, 0x404040, -- icon color when darkened
-    0xFFFFFF, 0x808080, -- icon color when highlighted
+    ICON_COLOR, --line color
+    BOX_OUTLINE_COLOR, SHADOW_COLOR, -- box outline and shadow
+    UNSELECTED_LIGHT_COLOR, UNSELECTED_DARK_COLOR, -- icon color when darkened
+    square2_selected_light, square2_selected_dark, -- icon color when highlighted
     (shadow_apu[0x4004] & 0xC0) >> 6)
 
   draw_sweep_indicator(1, 84, 
-    0x808080, --line color
-    0x000000, 0x80000000, -- box outline and shadow
-    0x808080, 0x404040, -- icon color when darkened
-    0xFFFFFF, 0x808080, -- icon color when highlighted
+    ICON_COLOR, --line color
+    BOX_OUTLINE_COLOR, SHADOW_COLOR, -- box outline and shadow
+    UNSELECTED_LIGHT_COLOR, UNSELECTED_DARK_COLOR, -- icon color when darkened
+    square2_selected_light, square2_selected_dark, -- icon color when highlighted
     shadow_apu[0x4005])
 
   draw_volume_envelope_indicator(1, 93, 
-    0x808080, --line color
-    0x000000, 0x80000000, -- box outline and shadow
-    0x808080, 0x404040, -- icon color when darkened
-    0xFFFFFF, 0x808080, -- icon color when highlighted
+    ICON_COLOR, --line color
+    BOX_OUTLINE_COLOR, SHADOW_COLOR, -- box outline and shadow
+    UNSELECTED_LIGHT_COLOR, UNSELECTED_DARK_COLOR, -- icon color when darkened
+    square2_selected_light, square2_selected_dark, -- icon color when highlighted
     shadow_apu[0x4004])
 
   draw_volume_bar(1, 102, 
-    0x808080, --line color
-    0x000000, 0x80000000, -- box outline and shadow
-    0x808080, 0x404040, -- icon color when darkened
-    0xFFFFFF, 0x808080, -- icon color when highlighted
+    ICON_COLOR, --line color
+    BOX_OUTLINE_COLOR, SHADOW_COLOR, -- box outline and shadow
+    UNSELECTED_LIGHT_COLOR, UNSELECTED_DARK_COLOR, -- icon color when darkened
+    square2_selected_light, square2_selected_dark, -- icon color when highlighted
     shadow_apu[0x4004],
     square2_roll[#square2_roll].volume)
 
   tiny_string(1, 119, "Triangle", 0xFFFFFF)
 
-  draw_raw_registers(1, 126, 0x000000, 0x80000000, 0x808080, 0x404040,
+  draw_raw_registers(1, 126, BOX_OUTLINE_COLOR, SHADOW_COLOR, UNSELECTED_LIGHT_COLOR, UNSELECTED_DARK_COLOR,
     {shadow_apu[0x4008],shadow_apu[0x4009],shadow_apu[0x400A],shadow_apu[0x400B]})
 
-
+  local noise_mode = ((shadow_apu[0x400E] & 0x80) >> 7)
+  local noise_selected_light = NOISE_COLORS[noise_mode+1]
+  local noise_selected_dark = noise_selected_light + 0xB0000000
 
   tiny_string(1, 195, "Noise", 0xFFFFFF)
 
-  draw_raw_registers(1, 202, 0x000000, 0x80000000, 0x808080, 0x404040,
+  draw_raw_registers(1, 202, BOX_OUTLINE_COLOR, SHADOW_COLOR, UNSELECTED_LIGHT_COLOR, UNSELECTED_DARK_COLOR,
     {shadow_apu[0x400C],shadow_apu[0x400D],shadow_apu[0x400E],shadow_apu[0x400F]})
   draw_noise_mode(1, 211, 
-    0x808080, --line color
-    0x000000, 0x80000000, -- box outline and shadow
-    0x808080, 0x404040, -- icon color when darkened
-    0xFFFFFF, 0x808080, -- icon color when highlighted
+    ICON_COLOR, --line color
+    BOX_OUTLINE_COLOR, SHADOW_COLOR, -- box outline and shadow
+    UNSELECTED_LIGHT_COLOR, UNSELECTED_DARK_COLOR, -- icon color when darkened
+    noise_selected_light, noise_selected_dark, -- icon color when highlighted
     shadow_apu[0x400E])
 
 
   draw_volume_envelope_indicator(1, 220, 
-    0x808080, --line color
-    0x000000, 0x80000000, -- box outline and shadow
-    0x808080, 0x404040, -- icon color when darkened
-    0xFFFFFF, 0x808080, -- icon color when highlighted
+    ICON_COLOR, --line color
+    BOX_OUTLINE_COLOR, SHADOW_COLOR, -- box outline and shadow
+    UNSELECTED_LIGHT_COLOR, UNSELECTED_DARK_COLOR, -- icon color when darkened
+    noise_selected_light, noise_selected_dark, -- icon color when highlighted
     shadow_apu[0x400C])
 
   draw_volume_bar(1, 229, 
-    0x808080, --line color
-    0x000000, 0x80000000, -- box outline and shadow
-    0x808080, 0x404040, -- icon color when darkened
-    0xFFFFFF, 0x808080, -- icon color when highlighted
+    ICON_COLOR, --line color
+    BOX_OUTLINE_COLOR, SHADOW_COLOR, -- box outline and shadow
+    UNSELECTED_LIGHT_COLOR, UNSELECTED_DARK_COLOR, -- icon color when darkened
+    noise_selected_light, noise_selected_dark, -- icon color when highlighted
     shadow_apu[0x400C],
     noise_roll[#noise_roll].volume)
 
+  local dpcm_selected_light = DMC_PLAYING_COLOR
+  local dpcm_selected_dark = dpcm_selected_light + 0xB0000000
+
   tiny_string(1, 159, "DPCM", 0xFFFFFF)
 
-  draw_raw_registers(1, 166, 0x000000, 0x80000000, 0x808080, 0x404040,
+  draw_raw_registers(1, 166, BOX_OUTLINE_COLOR, SHADOW_COLOR, UNSELECTED_LIGHT_COLOR, UNSELECTED_DARK_COLOR,
     {shadow_apu[0x4010],shadow_apu[0x4011],shadow_apu[0x4012],shadow_apu[0x4013]})
 
   draw_dpcm_sample_indicator(1, 175, 
-    0x808080, --line color
-    0x000000, 0x80000000, -- box outline and shadow
-    0x808080, 0x404040, -- icon color when darkened
-    0xFFFFFF, 0x808080, -- icon color when highlighted
+    ICON_COLOR, --line color
+    BOX_OUTLINE_COLOR, SHADOW_COLOR, -- box outline and shadow
+    UNSELECTED_LIGHT_COLOR, UNSELECTED_DARK_COLOR, -- icon color when darkened
+    dpcm_selected_light, dpcm_selected_dark, -- icon color when highlighted
     shadow_apu[0x4010], shadow_apu[0x4012], dmc_roll[#dmc_roll].playing)
 
   draw_dpcm_length_indicator(1, 184, 
-    0x808080, --line color
-    0x000000, 0x80000000, -- box outline and shadow
-    0x808080, 0x404040, -- icon color when darkened
-    0xFFFFFF, 0x808080, -- icon color when highlighted
+    ICON_COLOR, --line color
+    BOX_OUTLINE_COLOR, SHADOW_COLOR, -- box outline and shadow
+    UNSELECTED_LIGHT_COLOR, UNSELECTED_DARK_COLOR, -- icon color when darkened
+    dpcm_selected_light, dpcm_selected_dark, -- icon color when highlighted
     shadow_apu[0x4010], shadow_apu[0x4013], dmc_roll[#dmc_roll].playing)
 end
 
