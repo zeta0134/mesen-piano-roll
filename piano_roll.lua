@@ -911,7 +911,11 @@ end
 
 local duty_icon_functions = {draw_duty_12, draw_duty_25, draw_duty_50, draw_duty_75}
 
-function draw_duty_indicator(x, y, icon_color, box_color, shadow_color, light_color, dark_color, selected_light_color, selected_dark_color, duty_cycle)
+function draw_duty_indicator(x, y, icon_color, box_color, shadow_color, light_color, dark_color, selected_light_color, selected_dark_color, duty_cycle, playing)
+  local icon_color = light_color
+  if playing then
+    icon_color = selected_light_color
+  end
   emu.drawLine(x, y+6, x+2, y+6, icon_color)
   emu.drawLine(x+2, y, x+2, y+5, icon_color)
   emu.drawLine(x+3, y, x+6, y, icon_color)
@@ -922,7 +926,7 @@ function draw_duty_indicator(x, y, icon_color, box_color, shadow_color, light_co
   emu.drawRectangle(x+11, y, 25, 7, box_color, true)
 
   for i = 1, 4 do
-    if duty_cycle == (i - 1) then
+    if playing and duty_cycle == (i - 1) then
       emu.drawRectangle(x + ((i - 1) * 6) + 12, y + 1, 5, 5, selected_dark_color, true)
       duty_icon_functions[i](x + ((i - 1) * 6) + 12, y + 1, selected_light_color)
     else
@@ -1254,7 +1258,7 @@ function draw_apu_registers()
     BOX_OUTLINE_COLOR, SHADOW_COLOR, -- box outline and shadow
     UNSELECTED_LIGHT_COLOR, UNSELECTED_DARK_COLOR, -- icon color when darkened
     square1_selected_light, square1_selected_dark, -- icon color when highlighted
-    (shadow_apu[0x4000] & 0xC0) >> 6)
+    (shadow_apu[0x4000] & 0xC0) >> 6, square1_roll[#square1_roll].enabled)
 
   draw_sweep_indicator(1, 25, 
     ICON_COLOR, --line color
@@ -1290,7 +1294,7 @@ function draw_apu_registers()
     BOX_OUTLINE_COLOR, SHADOW_COLOR, -- box outline and shadow
     UNSELECTED_LIGHT_COLOR, UNSELECTED_DARK_COLOR, -- icon color when darkened
     square2_selected_light, square2_selected_dark, -- icon color when highlighted
-    (shadow_apu[0x4004] & 0xC0) >> 6)
+    (shadow_apu[0x4004] & 0xC0) >> 6, square2_roll[#square2_roll].enabled)
 
   draw_sweep_indicator(1, 84, 
     ICON_COLOR, --line color
