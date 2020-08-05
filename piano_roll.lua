@@ -1124,7 +1124,7 @@ function draw_apu_registers()
   tiny_string(1, 60, "Pulse 2", 0xFFFFFF)
 
   draw_raw_registers(1, 66, 0x000000, 0x80000000, 0x808080, 0x404040,
-    {shadow_apu[0x4000],shadow_apu[0x4001],shadow_apu[0x4002],shadow_apu[0x4003]})
+    {shadow_apu[0x4004],shadow_apu[0x4005],shadow_apu[0x4006],shadow_apu[0x4007]})
   draw_duty_indicator(1, 75, 
     0x808080, --line color
     0x000000, 0x80000000, -- box outline and shadow
@@ -1157,7 +1157,20 @@ function draw_apu_registers()
   tiny_string(1, 119, "Triangle", 0xFFFFFF)
 
   draw_raw_registers(1, 126, 0x000000, 0x80000000, 0x808080, 0x404040,
-    {shadow_apu[0x4004],shadow_apu[0x4005],shadow_apu[0x4006],shadow_apu[0x4007]})
+    {shadow_apu[0x4008],shadow_apu[0x4009],shadow_apu[0x400A],shadow_apu[0x400B]})
+
+
+
+  tiny_string(1, 200, "Noise", 0xFFFFFF)
+
+  draw_raw_registers(1, 207, 0x000000, 0x80000000, 0x808080, 0x404040,
+    {shadow_apu[0x400C],shadow_apu[0x400D],shadow_apu[0x400E],shadow_apu[0x400F]})
+
+  tiny_string(1, 160, "DPCM", 0xFFFFFF)
+
+  draw_raw_registers(1, 167, 0x000000, 0x80000000, 0x808080, 0x404040,
+    {shadow_apu[0x4010],shadow_apu[0x4011],shadow_apu[0x4012],shadow_apu[0x4013]})
+
 end
 
 function mesen_draw()
