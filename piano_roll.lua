@@ -1089,7 +1089,7 @@ end
 function draw_apu_registers()
   emu.drawRectangle(0, 0, 39, 240, 0x40202020, true)
   tiny_string(1, 1, "Pulse 1", 0xFFFFFF)
-  
+
   draw_raw_registers(1, 7, 0x000000, 0x80000000, 0x808080, 0x404040,
     {shadow_apu[0x4000],shadow_apu[0x4001],shadow_apu[0x4002],shadow_apu[0x4003]})
   draw_duty_indicator(1, 16, 
@@ -1121,10 +1121,43 @@ function draw_apu_registers()
     shadow_apu[0x4000],
     square1_roll[#square1_roll].volume)
 
-  --for i = 0x4000, 0x4017 do
-  --  tiny_hex(10, (i - 0x4000) * 6, i, 0xFFFFFF, 4)
-  --  tiny_hex(30, (i - 0x4000) * 6, shadow_apu[i], 0xFFFFFF, 2)
-  --end
+  tiny_string(1, 60, "Pulse 2", 0xFFFFFF)
+
+  draw_raw_registers(1, 66, 0x000000, 0x80000000, 0x808080, 0x404040,
+    {shadow_apu[0x4000],shadow_apu[0x4001],shadow_apu[0x4002],shadow_apu[0x4003]})
+  draw_duty_indicator(1, 75, 
+    0x808080, --line color
+    0x000000, 0x80000000, -- box outline and shadow
+    0x808080, 0x404040, -- icon color when darkened
+    0xFFFFFF, 0x808080, -- icon color when highlighted
+    (shadow_apu[0x4004] & 0xC0) >> 6)
+
+  draw_sweep_indicator(1, 84, 
+    0x808080, --line color
+    0x000000, 0x80000000, -- box outline and shadow
+    0x808080, 0x404040, -- icon color when darkened
+    0xFFFFFF, 0x808080, -- icon color when highlighted
+    shadow_apu[0x4005])
+
+  draw_volume_envelope_indicator(1, 93, 
+    0x808080, --line color
+    0x000000, 0x80000000, -- box outline and shadow
+    0x808080, 0x404040, -- icon color when darkened
+    0xFFFFFF, 0x808080, -- icon color when highlighted
+    shadow_apu[0x4004])
+
+  draw_volume_bar(1, 102, 
+    0x808080, --line color
+    0x000000, 0x80000000, -- box outline and shadow
+    0x808080, 0x404040, -- icon color when darkened
+    0xFFFFFF, 0x808080, -- icon color when highlighted
+    shadow_apu[0x4004],
+    square2_roll[#square2_roll].volume)
+
+  tiny_string(1, 119, "Triangle", 0xFFFFFF)
+
+  draw_raw_registers(1, 126, 0x000000, 0x80000000, 0x808080, 0x404040,
+    {shadow_apu[0x4004],shadow_apu[0x4005],shadow_apu[0x4006],shadow_apu[0x4007]})
 end
 
 function mesen_draw()
