@@ -1320,7 +1320,7 @@ function draw_apu_registers()
   tiny_string(1, 119, "Triangle", 0xFFFFFF)
 
   draw_raw_registers(1, 126, BOX_OUTLINE_COLOR, SHADOW_COLOR, UNSELECTED_LIGHT_COLOR, UNSELECTED_DARK_COLOR,
-    {shadow_apu[0x4008],shadow_apu[0x4009],shadow_apu[0x400A],shadow_apu[0x400B]})
+    {shadow_apu[0x4008],nil,shadow_apu[0x400A],shadow_apu[0x400B]})
 
   draw_triangle_indicator(1, 135, 
     ICON_COLOR, --line color
@@ -1336,7 +1336,7 @@ function draw_apu_registers()
   tiny_string(1, 195, "Noise", 0xFFFFFF)
 
   draw_raw_registers(1, 202, BOX_OUTLINE_COLOR, SHADOW_COLOR, UNSELECTED_LIGHT_COLOR, UNSELECTED_DARK_COLOR,
-    {shadow_apu[0x400C],shadow_apu[0x400D],shadow_apu[0x400E],shadow_apu[0x400F]})
+    {shadow_apu[0x400C],nil,shadow_apu[0x400E],shadow_apu[0x400F]})
   draw_noise_mode(1, 211, 
     ICON_COLOR, --line color
     BOX_OUTLINE_COLOR, SHADOW_COLOR, -- box outline and shadow
