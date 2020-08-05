@@ -1219,16 +1219,32 @@ function draw_apu_registers()
 
 
 
-  tiny_string(1, 200, "Noise", 0xFFFFFF)
+  tiny_string(1, 195, "Noise", 0xFFFFFF)
 
-  draw_raw_registers(1, 207, 0x000000, 0x80000000, 0x808080, 0x404040,
+  draw_raw_registers(1, 202, 0x000000, 0x80000000, 0x808080, 0x404040,
     {shadow_apu[0x400C],shadow_apu[0x400D],shadow_apu[0x400E],shadow_apu[0x400F]})
-  draw_noise_mode(1, 216, 
+  draw_noise_mode(1, 211, 
     0x808080, --line color
     0x000000, 0x80000000, -- box outline and shadow
     0x808080, 0x404040, -- icon color when darkened
     0xFFFFFF, 0x808080, -- icon color when highlighted
     shadow_apu[0x400E])
+
+
+  draw_volume_envelope_indicator(1, 220, 
+    0x808080, --line color
+    0x000000, 0x80000000, -- box outline and shadow
+    0x808080, 0x404040, -- icon color when darkened
+    0xFFFFFF, 0x808080, -- icon color when highlighted
+    shadow_apu[0x400C])
+
+  draw_volume_bar(1, 229, 
+    0x808080, --line color
+    0x000000, 0x80000000, -- box outline and shadow
+    0x808080, 0x404040, -- icon color when darkened
+    0xFFFFFF, 0x808080, -- icon color when highlighted
+    shadow_apu[0x400C],
+    noise_roll[#noise_roll].volume)
 
   tiny_string(1, 160, "DPCM", 0xFFFFFF)
 
