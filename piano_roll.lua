@@ -1086,6 +1086,64 @@ function draw_volume_bar(x, y, icon_color, box_color, shadow_color, light_color,
   end
 end
 
+function draw_mode_0(x, y, color)
+  emu.drawPixel(x, y+2, color)
+  emu.drawPixel(x+1, y, color)
+  emu.drawPixel(x+2, y+3, color)
+  emu.drawPixel(x+3, y+4, color)
+  emu.drawPixel(x+4, y+2, color)
+  emu.drawPixel(x+5, y, color)
+  emu.drawPixel(x+6, y+2, color)
+  emu.drawPixel(x+7, y+3, color)
+  emu.drawPixel(x+8, y+1, color)
+  emu.drawPixel(x+9, y+4, color)
+  emu.drawPixel(x+10, y, color)
+end
+
+function draw_mode_1(x, y, color)
+  emu.drawPixel(x, y+2, color)
+  emu.drawLine(x+1, y+1, x+1, y+2, color)
+  emu.drawPixel(x+2, y, color)
+  emu.drawPixel(x+3, y+4, color)
+  emu.drawPixel(x+4, y+3, color)
+  emu.drawLine(x+5, y+2, x+5, y+3, color)
+  emu.drawPixel(x+6, y+1, color)
+  emu.drawPixel(x+7, y, color)
+  emu.drawLine(x+8, y+3, x+8, y+4, color)
+  emu.drawPixel(x+9, y+2, color)
+  emu.drawPixel(x+10, y+1, color)
+end
+
+local mode_functions = {}
+mode_functions[0] = draw_mode_0
+mode_functions[1] = draw_mode_1
+
+function draw_noise_mode(x, y, icon_color, box_color, shadow_color, light_color, dark_color, selected_light_color, selected_dark_color, noise_byte)
+  emu.drawPixel(x, y+3, icon_color)
+  emu.drawPixel(x+1, y+2, icon_color)
+  emu.drawLine(x+2, y+3, x+2, y+5, icon_color)
+  emu.drawLine(x+3, y, x+3, y+2, icon_color)
+  emu.drawLine(x+4, y+3, x+4, y+4, icon_color)
+  emu.drawPixel(x+5, y+2, icon_color)
+  emu.drawLine(x+6, y+3, x+6, y+6, icon_color)
+  emu.drawLine(x+7, y+1, x+7, y+2, icon_color)
+  emu.drawLine(x+8, y+3, x+9, y+3, icon_color)
+
+  emu.drawRectangle(x+12, y+1, 25, 7, shadow_color)
+  emu.drawRectangle(x+11, y, 25, 7, box_color, true)
+
+  local noise_mode = ((noise_byte & 0x80) >> 7)
+  for i = 0, 1 do
+    if i == noise_mode then
+      emu.drawRectangle(x+12 + (i*12), y+1, 11, 5, selected_dark_color, true)
+      mode_functions[i](x+12 + (i*12), y+1, selected_light_color)
+    else
+      emu.drawRectangle(x+12 + (i*12), y+1, 11, 5, dark_color, true)
+      mode_functions[i](x+12 + (i*12), y+1, light_color)
+    end
+  end
+end
+
 function draw_apu_registers()
   emu.drawRectangle(0, 0, 39, 240, 0x40202020, true)
   tiny_string(1, 1, "Pulse 1", 0xFFFFFF)
@@ -1165,6 +1223,12 @@ function draw_apu_registers()
 
   draw_raw_registers(1, 207, 0x000000, 0x80000000, 0x808080, 0x404040,
     {shadow_apu[0x400C],shadow_apu[0x400D],shadow_apu[0x400E],shadow_apu[0x400F]})
+  draw_noise_mode(1, 216, 
+    0x808080, --line color
+    0x000000, 0x80000000, -- box outline and shadow
+    0x808080, 0x404040, -- icon color when darkened
+    0xFFFFFF, 0x808080, -- icon color when highlighted
+    shadow_apu[0x400E])
 
   tiny_string(1, 160, "DPCM", 0xFFFFFF)
 
